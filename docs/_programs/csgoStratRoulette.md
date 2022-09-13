@@ -12,7 +12,7 @@ A fun activity to do in CSGO with friends is Strat Roulette, but the website we 
 
 It gives a random strategy from a list for the team to try to complete for the round.
 
-The strategies are listed [here](/src/csgoStrats.js).
+The strategies are listed [here]({{ '/src/csgoStrats.js' | relative_url }}).
 
 By selecting your side, the objective, or the map, it will filter the list of strats to only ones that work there.
 

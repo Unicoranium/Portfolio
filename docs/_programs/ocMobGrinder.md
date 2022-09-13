@@ -18,11 +18,11 @@ There are spawners to select which mobs to spawn, grinders to select how to kill
 
 This program uses 3 lua files in total.
 
-[The first file](/src/mobGrinder.lua) defines the majority of the logic. This is the file that is actually run on the computer. The beginning of the file handles the configuration of the redstone I/O components.
+[The first file]({{ '/src/mobGrinder.lua' | relative_url }}) defines the majority of the logic. This is the file that is actually run on the computer. The beginning of the file handles the configuration of the redstone I/O components.
 
-[The second file](/src/buttonAPI.lua) defines the API for tracking and rendering the buttons on the in game display. This file just needs to be present on the computer to be imported by the first file.
+[The second file]({{ '/src/buttonAPI.lua' | relative_url }}) defines the API for tracking and rendering the buttons on the in game display. This file just needs to be present on the computer to be imported by the first file.
 
-[The third file](/src/printComponents.lua) is a simple program to print out the UUID of all connected redstone components. This is used to help configure the first file.
+[The third file]({{ '/src/printComponents.lua' | relative_url }}) is a simple program to print out the UUID of all connected redstone components. This is used to help configure the first file.
 
 A simple video demo of it turning lamps on and off.
 

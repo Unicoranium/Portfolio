@@ -19,8 +19,8 @@ In [Karuta], there is an option to go on a date with a character who you have at
 
 A date has many rules to create a complex puzzle, but they can be poorly summarized as follows. You have 5 attributes, the first 4 must not hit 0, while the goal is to reach 0 on the timer. The higher the first 4 stats are when the date ends, the better your score. Each block has a location you can choose to visit. These locations can do anything from refilling some of your stats to rerolling the entire board or ending the date early for a reduced score. 
 
-[Karuta] gives you the date in the form of an image. Example: ![Karuta Date Image](/src/karutaDateImages/006c6a7a9a490d1c4192b643f66fe144.png)
-I have saved a few other images [here](/src/karutaDateImages/) in case you would like to test them.
+[Karuta] gives you the date in the form of an image. Example: ![Karuta Date Image]({{ '/src/karutaDateImages/006c6a7a9a490d1c4192b643f66fe144.png' | relative_url }})
+I have saved a few other images [here]({{ '/src/karutaDateImages/' | relative_url }}) in case you would like to test them.
 
 By right clicking on a tile on the board, you can manually input the date. Alternatively, if you copy the image to the clipboard, you can then click the paste image (your browser may ask you for permission). The program will then attempt to parse the image into the board. At smaller resolutions this will fail for some of tiles due to off screen rendering. This can be manually fixed by right clicking the incorrect tiles, or resizing the window to be larger.
 
