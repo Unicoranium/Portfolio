@@ -21,6 +21,7 @@ layout: default
 				{% for page in site.programs %} {% if page.tags contains tag %}
 				<li>
 					<a class="tag-link" href="{{ page.url | relative_url }}">{{ page.title | escape }}</a>
+					<p>{{ page.desc }}</p>
 				</li>
 				{% endif %} {% endfor %} {%- if site.show_excerpts -%} {{ tag.excerpt }} {%- endif -%}
 			</ul>
