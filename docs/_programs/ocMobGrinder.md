@@ -30,5 +30,5 @@ A simple video demo of it turning lamps on and off.
 
 <video muted autoplay loop style="max-width:100%">
     <!-- <source src="http://www.html5rocks.com/en/tutorials/video/basics/devstories.mp4" type="video/mp4"/> -->
-    <source src="/src/ocMobGrinder.mp4" type="video/mp4"/>
+    <source src="{{ '/src/ocMobGrinder.mp4' | relative_url }}" type="video/mp4"/>
 </video>
