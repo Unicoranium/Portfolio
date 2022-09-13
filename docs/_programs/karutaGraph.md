@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Karuta Graph
-desc: A program I made to display frame costs in Karuta
+desc: Display frame costs in Karuta in a network.
 type: html
 tags:
     - karuta

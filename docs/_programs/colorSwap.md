@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Color Swap Solver
-desc: A program I made to beat my friends in a mobile game.
+desc: Plays a mobile game better than my friends.
 type: html
 tags:
     - optimization

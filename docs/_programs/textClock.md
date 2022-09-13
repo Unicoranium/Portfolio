@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Text Clock
-desc: A clock using words
+desc: A clock using words.
 type: html
 tags:
     - simple

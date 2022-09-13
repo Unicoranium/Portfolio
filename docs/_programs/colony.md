@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Colony Simulator
-desc: A program I made to simulate colonies.
+desc: Simulate colonies with AI and player input.
 type: html
 tags:
     - simulation

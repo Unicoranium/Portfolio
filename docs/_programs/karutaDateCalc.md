@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Karuta Date Calculator
-desc: A program I made to optimize dates in Karuta
+desc: Optimizes dates in Karuta.
 type: html
 tags:
     - optimization

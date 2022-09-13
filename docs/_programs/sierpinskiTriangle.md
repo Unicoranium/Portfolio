@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Sierpinski Triangle
-desc: A few programs I made to draw Sierpinski triangle.
+desc: Multiple ways to draw a Sierpinski triangle.
 type: khanacademy
 tags:
     - simple

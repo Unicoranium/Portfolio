@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Message Maker
-desc: A program I made to write messages out of particles
+desc: Writes messages out of particles.
 type: html
 tags:
     - simulation

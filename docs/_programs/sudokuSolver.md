@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Sudoku Solver
-desc: A program I made to solve Sudoku
+desc: Solves Sudoku games.
 type: html
 tags:
     - helper

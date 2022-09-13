@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Clue Solver
-desc: A program I made to play a game of Clue and find the answer.
+desc: Plays the game Clue and finds the correct answer.
 type: html
 tags:
     - optimization

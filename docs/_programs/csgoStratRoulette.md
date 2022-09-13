@@ -1,7 +1,7 @@
 ---
 layout: program
 title: CSGO Strat Roulette
-desc: A program I made to give us random strategies for CSGO
+desc: Gives random strategies for CSGO.
 type: html
 tags:
     - simple

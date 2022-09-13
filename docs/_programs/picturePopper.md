@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Picture Popper
-desc: A program I made to make a small game out of pictures
+desc: Small game made from picture data.
 type: khanacademy
 tags:
     - khan academy

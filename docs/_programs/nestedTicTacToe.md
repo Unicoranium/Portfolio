@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Nested Tic-Tac-Toe
-desc: A program I made to play nested Tic-Tac-Toe
+desc: Playable nested Tic-Tac-Toe.
 type: khanacademy
 tags:
     - khan academy

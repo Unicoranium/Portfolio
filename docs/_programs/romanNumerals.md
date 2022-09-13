@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Roman Numerals
-desc: A program I made to calculate roman numerals
+desc: Calculates roman numerals.
 type: html
 tags:
     - calculation

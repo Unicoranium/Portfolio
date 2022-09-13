@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Conway's Game Of Life
-desc: A program I made to simulate Conway's Game of Life
+desc: Simulate Conway's Game of Life.
 type: html
 tags:
     - game

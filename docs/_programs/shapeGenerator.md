@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Shape Generator
-desc: A program I made to generate
+desc: Generates shapes from given parameters.
 type: khanacademy
 tags:
     - khan academy

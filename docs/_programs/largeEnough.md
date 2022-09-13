@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Large Enough
-desc: A program I made to demonstrate the large enough condition
+desc: Demonstrates the large enough condition.
 type: html
 tags:
     - school

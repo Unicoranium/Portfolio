@@ -1,7 +1,7 @@
 ---
 layout: program
-title: 
-desc: A program I made to create fireworks.
+title: Fireworks
+desc: Simulates fireworks.
 type: khanacademy
 tags:
     - khan academy

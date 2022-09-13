@@ -15,16 +15,19 @@ layout: default
 			<h3>
 				<a class="post-link" href="{{ "/programs/messageMaker.html" | relative_url }}">Message Maker</a>
 			</h3>
+            <p>{% assign p = site.programs | where: "id", "/programs/messageMaker" | first %} {{p.desc}}</p>
 		</li>
 		<li>
 			<h3>
 				<a class="post-link" href="{{ "/programs/mazeMaker.html" | relative_url }}">Maze Maker</a>
 			</h3>
+            <p>{% assign p = site.programs | where: "id", "/programs/mazeMaker" | first %} {{p.desc}}</p>
 		</li>
 		<li>
 			<h3>
 				<a class="post-link" href="{{ "/programs/3dGraphics.html" | relative_url }}">3D Graphics</a>
 			</h3>
+            <p>{% assign p = site.programs | where: "id", "/programs/3dGraphics" | first %} {{p.desc}}</p>
 		</li>
 	</ul>
 	<h1>All Programs</h1>
@@ -34,6 +37,7 @@ layout: default
 			<h3>
 				<a class="post-link" href="{{ post.url | relative_url }}"> {{ post.title | escape }} </a>
 			</h3>
+            <p>{{ post.desc }}</p>
 			{%- if site.show_excerpts -%} {{ post.excerpt }} {%- endif -%}
 		</li>
 		{%- endfor -%}

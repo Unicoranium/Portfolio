@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Random Tree
-desc: A program I made to draw a randomized tree.
+desc: Draws a randomized tree.
 type: html
 tags:
     - graphics

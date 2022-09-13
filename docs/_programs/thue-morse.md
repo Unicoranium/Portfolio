@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Thue-Morse
-desc: A clock using words
+desc: Draws Koch's curve from the Thue-Morse sequence.
 type: html
 tags:
     - calculation

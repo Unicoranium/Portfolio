@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Shortest Path
-desc: A program I made to demonstrate a common mistake in pathfinding
+desc: Demonstrates flaws with shortsighted path finding.
 type: html
 tags:
     - calculation

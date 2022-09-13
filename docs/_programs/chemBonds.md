@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Chemical Bonds Calculator
-desc: A program I made in the high school chemistry while learning about chemical bonds.
+desc: Calculates chemical bonds for chemistry.
 type: html
 tags:
     - calculation

@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Maze Maker
-desc: A program I made to demonstrate path finding in a maze.
+desc: Interactive demo for path finding.
 type: html
 tags:
     - optimization

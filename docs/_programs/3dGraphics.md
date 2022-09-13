@@ -1,7 +1,7 @@
 ---
 layout: program
 title: 3D Graphics
-desc: A program I made to draw 3D shapes.
+desc: Draws 3D shapes.
 type: html
 tags:
     - graphics

@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Minesweeper
-desc: A program I made to play Minesweeper
+desc: Recreation of Minesweeper.
 type: khanacademy
 tags:
     - khan academy

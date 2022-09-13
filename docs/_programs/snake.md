@@ -1,6 +1,6 @@
 ---
 layout: program
-title: 
+title: Snake
 desc: Classic Snake but not quite. 
 type: html
 tags:

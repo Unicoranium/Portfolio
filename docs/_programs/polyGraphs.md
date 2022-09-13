@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Polynomial Graphs
-desc: A program I made all the way back in middle school algebra while learning about polynomials.
+desc: Experiment with polynomials.
 type: html
 tags:
     - calculation

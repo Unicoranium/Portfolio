@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Collision Detection
-desc: A program I made to detect collisions between 2D shapes
+desc: Detects collisions between 2D shapes.
 type: khanacademy
 tags:
     - khan academy

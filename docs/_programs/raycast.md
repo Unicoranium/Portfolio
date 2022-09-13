@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Raycasting
-desc: A program I made to demonstrate raycasting.
+desc: Demonstrates raycasting.
 type: html
 tags:
     - calculation

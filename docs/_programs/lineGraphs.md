@@ -1,7 +1,7 @@
 ---
 layout: program
 title: Line Graphs
-desc: A program I made all the way back in middle school algebra while learning about graphing lines and calculating intersections.
+desc: Experiment with graphing lines and calculating intersections.
 type: html
 tags:
     - calculation
