@@ -15,14 +15,15 @@ layout: default
 	</header>
 
 	<div class="post-content e-content" itemprop="articleBody">
-		{{ page.desc }} {% assign path = page.path | split: "." | first | split: "/" | last %}
-		<br /><br />
+		{{ page.desc }} {% assign path = page.path | split: "." | first | split: "/" | last %} <br /><br />
 		{% case page.type %} {% when 'html' %}
 		<iframe id="frame" style="max-width: 100%; width: 1000px; min-height: 563px" src="{{ path | prepend: '/src/' | relative_url}}.html"></iframe><br /><br />
 		<button onclick="let frame = document.getElementById('frame'); frame.src = frame.src">Reload</button>
 		<a href="{{ path | prepend: '/src/' | relative_url}}.html" target="_blank">Open in new tab</a>
 		<br /><br />
-		{% when 'lua' %} {% endcase %} {{ content }}
+		{% when 'lua' %} {% when "khanacademy" %} {% if page.progid %}
+		<script src="https://www.khanacademy.org/computer-programming/_/{{ page.progid }}/embed.js?editor=yes&amp;buttons=yes&amp;author=yes&amp;embed=yes"></script>
+		{% endif %} {% endcase %} {{ content }}
 
 		<br /><br />
 		{% if page.tags %} {% assign tags = page.tags | sort %} Tags: {% for tag in tags %}
