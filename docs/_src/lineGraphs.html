@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+	<canvas id="Algebra2" width="800" height="800" style="background: black; border: 15px solid lime; position: absolute; left: 0px; top: 0px"></canvas>
+
+	<body onload="onLoad();">
+		<form>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="X1"
+				value="1"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="X1Text">First X value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="Y1"
+				value="2"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="Y1Text">First Y value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="X2"
+				value="3"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="X2Text">Second X value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="Y2"
+				value="4"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="Y2Text">Second Y value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="X3"
+				value="-1"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="X3Text">Third X value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="Y3"
+				value="2"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="Y3Text">Third Y value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="X4"
+				value="-3"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="X4Text">Forth X value</p>
+			<input
+				type="number"
+				width="100"
+				height="50"
+				style="border: 5px solid lime; background: black; position: absolute; width: 30px; height: 25px; color: lime; text-align: center"
+				id="Y4"
+				value="4"
+			/>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 101.5px; height: 26px; color: lime; text-align: center" id="Y4Text">Forth Y value</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="InterceptText">Intercept:</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="Intercept">(0, 1)</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="Slope1Text">First slope</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="Slope1">Slope</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="Slope2Text">Second slope</p>
+			<p style="border: 5px solid lime; background: black; position: absolute; width: 121.5px; height: 26px; color: lime; text-align: center" id="Slope2">Slope</p>
+		</form>
+	</body>
+
+	<script>
+		var canvas;
+		var ctx;
+		function onLoad() {
+			canvas = document.getElementById('Algebra2');
+			ctx = canvas.getContext('2d');
+			canvas.width = innerWidth - 200;
+			canvas.height = innerHeight - 30;
+			ctx.translate(canvas.width / 2, canvas.height / 2);
+
+			document.getElementById('X1').style.left = canvas.width + 30 + 'px';
+			document.getElementById('X1').style.top = 0 + 'px';
+			document.getElementById('X1Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('X1Text').style.top = -16 + 'px';
+			document.getElementById('Y1').style.left = canvas.width + 30 + 'px';
+			document.getElementById('Y1').style.top = 35 + 'px';
+			document.getElementById('Y1Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('Y1Text').style.top = 20 + 'px';
+
+			document.getElementById('X2').style.left = canvas.width + 30 + 'px';
+			document.getElementById('X2').style.top = 90 + 'px';
+			document.getElementById('X2Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('X2Text').style.top = 74 + 'px';
+			document.getElementById('Y2').style.left = canvas.width + 30 + 'px';
+			document.getElementById('Y2').style.top = 125 + 'px';
+			document.getElementById('Y2Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('Y2Text').style.top = 110 + 'px';
+
+			document.getElementById('Slope1').style.left = canvas.width + 50 + 'px';
+			document.getElementById('Slope1').style.top = 200 + 'px';
+			document.getElementById('Slope1Text').style.left = canvas.width + 50 + 'px';
+			document.getElementById('Slope1Text').style.top = 164 + 'px';
+
+			document.getElementById('X3').style.left = canvas.width + 30 + 'px';
+			document.getElementById('X3').style.top = 270 + 'px';
+			document.getElementById('X3Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('X3Text').style.top = 254 + 'px';
+			document.getElementById('Y3').style.left = canvas.width + 30 + 'px';
+			document.getElementById('Y3').style.top = 305 + 'px';
+			document.getElementById('Y3Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('Y3Text').style.top = 290 + 'px';
+
+			document.getElementById('X4').style.left = canvas.width + 30 + 'px';
+			document.getElementById('X4').style.top = 360 + 'px';
+			document.getElementById('X4Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('X4Text').style.top = 344 + 'px';
+			document.getElementById('Y4').style.left = canvas.width + 30 + 'px';
+			document.getElementById('Y4').style.top = 395 + 'px';
+			document.getElementById('Y4Text').style.left = canvas.width + 70 + 'px';
+			document.getElementById('Y4Text').style.top = 380 + 'px';
+
+			document.getElementById('Slope2').style.left = canvas.width + 50 + 'px';
+			document.getElementById('Slope2').style.top = 470 + 'px';
+			document.getElementById('Slope2Text').style.left = canvas.width + 50 + 'px';
+			document.getElementById('Slope2Text').style.top = 434 + 'px';
+
+			document.getElementById('InterceptText').style.left = canvas.width + 50 + 'px';
+			document.getElementById('InterceptText').style.top = 520 + 'px';
+			document.getElementById('Intercept').style.left = canvas.width + 50 + 'px';
+			document.getElementById('Intercept').style.top = 555 + 'px';
+		}
+
+		function getSlope(x1, y1, x2, y2) {
+			var m = (y2 - y1) / (x2 - x1);
+			var b = -(x1 * m - y1);
+			if (b === -0) {
+				b = 0;
+			}
+			if (m === Infinity) {
+				return { x: x1 };
+			}
+			return { m: -m, b: -b };
+		}
+		function getIntercept(obj1, obj2) {
+			var x;
+			var y;
+			if (obj1.m === obj2.m && !isNaN(obj1.m) && !isNaN(obj2.m)) {
+				if (obj1.b === obj2.b) {
+					return 'All real numbers';
+				} else {
+					return null;
+				}
+			}
+			if (obj1.x === undefined && obj2.x === undefined) {
+				x = (obj2.b - obj1.b) / (obj1.m - obj2.m);
+				y = (obj1.b * obj2.m - obj2.b * obj1.m) / (obj2.m - obj1.m);
+				if (y === -0) {
+					y = 0;
+				}
+			} else if ((obj1.x !== undefined) ^ (obj2.x !== undefined)) {
+				var m;
+				var b;
+				if (obj1.x !== undefined) {
+					x = obj1.x;
+					m = obj2.m;
+					b = obj2.b;
+				} else {
+					x = obj2.x;
+					m = obj1.m;
+					b = obj1.b;
+				}
+				y = m * x + b;
+			} else {
+				return null;
+			}
+			return { x: x, y: y };
+		}
+
+		function draw() {
+			ctx.clearRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+			ctx.strokeStyle = 'gray';
+			ctx.lineWidth = 3;
+			for (var x = 0; x < 32; x++) {
+				ctx.beginPath();
+				ctx.moveTo((x * canvas.width) / 32 - canvas.width / 2, -canvas.height / 2);
+				ctx.lineTo((x * canvas.width) / 32 - canvas.width / 2, canvas.height / 2);
+				ctx.stroke();
+			}
+			for (var y = 0; y < 32; y++) {
+				ctx.beginPath();
+				ctx.moveTo(-canvas.width / 2, (y * canvas.height) / 32 - canvas.height / 2);
+				ctx.lineTo(canvas.width / 2, (y * canvas.height) / 32 - canvas.height / 2);
+				ctx.stroke();
+			}
+			ctx.lineWidth = 10;
+			ctx.beginPath();
+			ctx.moveTo(0, -canvas.height / 2);
+			ctx.lineTo(0, canvas.height / 2);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(-canvas.width / 2, 0);
+			ctx.lineTo(canvas.width / 2, 0);
+			ctx.stroke();
+			var slope1 = getSlope(
+				Number(document.getElementById('X1').value),
+				Number(document.getElementById('Y1').value),
+				Number(document.getElementById('X2').value),
+				Number(document.getElementById('Y2').value)
+			);
+			if (slope1.x !== undefined) {
+				document.getElementById('Slope1').innerHTML = 'x = ' + slope1.x;
+			} else {
+				document.getElementById('Slope1').innerHTML = 'y = ' + -Math.round(slope1.m * 100) / 100 + 'x + ' + -Math.round(slope1.b * 100) / 100;
+			}
+			var slope2 = getSlope(
+				Number(document.getElementById('X3').value),
+				Number(document.getElementById('Y3').value),
+				Number(document.getElementById('X4').value),
+				Number(document.getElementById('Y4').value)
+			);
+			if (slope2.x !== undefined) {
+				document.getElementById('Slope2').innerHTML = 'x = ' + slope2.x;
+			} else {
+				document.getElementById('Slope2').innerHTML = 'y = ' + -Math.round(slope2.m * 100) / 100 + 'x + ' + -Math.round(slope2.b * 100) / 100;
+			}
+			ctx.lineWidth = 5;
+			if (slope1.x === undefined && !isNaN(slope1.m)) {
+				ctx.beginPath();
+				ctx.strokeStyle = 'blue';
+				ctx.fillStyle = 'blue';
+				ctx.moveTo((-100 * canvas.width) / 32, ((-100 * slope1.m + slope1.b) * canvas.height) / 32);
+				ctx.lineTo((100 * canvas.width) / 32, ((100 * slope1.m + slope1.b) * canvas.height) / 32);
+				ctx.stroke();
+			} else {
+				ctx.beginPath();
+				ctx.strokeStyle = 'blue';
+				ctx.fillStyle = 'blue';
+				ctx.moveTo((slope1.x * canvas.width) / 32, (-100 * canvas.height) / 32);
+				ctx.lineTo((slope1.x * canvas.width) / 32, (100 * canvas.height) / 32);
+				ctx.stroke();
+			}
+			if (slope2.x === undefined && !isNaN(slope2.m)) {
+				ctx.beginPath();
+				ctx.strokeStyle = 'red';
+				ctx.fillStyle = 'red';
+				ctx.moveTo((-100 * canvas.width) / 32, ((-100 * slope2.m + slope2.b) * canvas.height) / 32);
+				ctx.lineTo((100 * canvas.width) / 32, ((100 * slope2.m + slope2.b) * canvas.height) / 32);
+				ctx.stroke();
+			} else {
+				ctx.beginPath();
+				ctx.strokeStyle = 'red';
+				ctx.fillStyle = 'red';
+				ctx.moveTo((slope2.x * canvas.width) / 32, (-100 * canvas.height) / 32);
+				ctx.lineTo((slope2.x * canvas.width) / 32, (100 * canvas.height) / 32);
+				ctx.stroke();
+			}
+			ctx.lineWidth = 10;
+			for (var x = -16; x <= 16; x++) {
+				var y1 = x * slope1.m + slope1.b;
+				var y2 = x * slope2.m + slope2.b;
+				ctx.strokeStyle = 'blue';
+				ctx.fillStyle = 'blue';
+				if (x === Number(document.getElementById('X1').value) || x === Number(document.getElementById('X2').value)) {
+					ctx.strokeStyle = 'yellow';
+					ctx.fillStyle = 'yellow';
+				}
+				ctx.beginPath();
+				if (slope1.x !== undefined && isNaN(y1)) {
+					ctx.arc((slope1.x * canvas.width) / 32, (x * canvas.height) / 32, 2.5, 0, Math.PI * 2);
+				} else {
+					ctx.arc((x * canvas.width) / 32, (y1 * canvas.height) / 32, 2.5, 0, Math.PI * 2);
+				}
+				ctx.stroke();
+				ctx.fill();
+				ctx.strokeStyle = 'red';
+				ctx.fillStyle = 'red';
+				if (x === Number(document.getElementById('X3').value) || x === Number(document.getElementById('X4').value)) {
+					ctx.strokeStyle = 'cyan';
+					ctx.fillStyle = 'cyan';
+				}
+				ctx.beginPath();
+				if (slope2.x !== undefined && isNaN(y2)) {
+					ctx.arc((slope2.x * canvas.width) / 32, (x * canvas.height) / 32, 2.5, 0, Math.PI * 2);
+				} else {
+					ctx.arc((x * canvas.width) / 32, (y2 * canvas.height) / 32, 2.5, 0, Math.PI * 2);
+				}
+				ctx.stroke();
+				ctx.fill();
+			}
+			var intersect = getIntercept(slope1, slope2);
+			ctx.lineWidth = 10;
+			ctx.beginPath();
+			ctx.fillStyle = 'lime';
+			ctx.strokeStyle = 'purple';
+			if (intersect !== null) {
+				ctx.arc((intersect.x * canvas.width) / 32, (intersect.y * canvas.height) / 32, 10, 0, Math.PI * 2);
+			}
+			ctx.stroke();
+			ctx.fill();
+			if (typeof intersect === typeof '') {
+				document.getElementById('Intercept').innerHTML = intersect;
+			} else if (intersect === null) {
+				document.getElementById('Intercept').innerHTML = 'No solution';
+			} else {
+				document.getElementById('Intercept').innerHTML = '(' + Math.round(intersect.x * 100) / 100 + ', ' + -Math.round(intersect.y * 100) / 100 + ')';
+			}
+		}
+		var d = setInterval(draw, 100);
+	</script>
+</html>

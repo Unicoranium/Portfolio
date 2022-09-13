@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+			crossorigin="anonymous"
+		/>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+			crossorigin="anonymous"
+		></script>
+		<script src="pixelmatch.js"></script>
+		<style>
+			canvas,
+			body {
+				padding: 0px;
+				margin: 0px;
+			}
+			.img-thumbnail {
+				max-width: 100px;
+			}
+			.dropzone {
+				box-sizing: border-box;
+				display: none;
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				left: 0;
+				top: 0;
+				z-index: 99999;
+
+				background: rgba(96, 167, 220, 0.8);
+				border: 11px dashed #60a7dc;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dropzone" class="dropzone"></div>
+		<div id="modal" class="modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Tile Edit</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body" id="modalBody"></div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col"><canvas id="canvas"></canvas></div>
+				<div class="col m-3">
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Position</span>
+						</div>
+						<input type="number" id="x" class="form-control" placeholder="5" value="5" min="0" max="10" />
+						<input type="number" id="y" class="form-control" placeholder="14" value="14" min="0" max="14" />
+					</div>
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Gas</span>
+						</div>
+						<input type="number" id="gas" class="form-control" placeholder="100" value="100" min="0" max="100" />
+					</div>
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Food</span>
+						</div>
+						<input type="number" id="food" class="form-control" placeholder="50" value="50" min="0" max="100" />
+					</div>
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Drink</span>
+						</div>
+						<input type="number" id="drink" class="form-control" placeholder="50" value="50" min="0" max="100" />
+					</div>
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Entertainment</span>
+						</div>
+						<input type="number" id="happy" class="form-control" placeholder="75" value="75" min="0" max="100" />
+					</div>
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Time</span>
+						</div>
+						<input type="number" id="time" class="form-control" placeholder="100" value="100" min="0" max="100" />
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="successCheck" />
+						<label class="form-check-label" for="successCheck"> Success </label>
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="ringCheck" />
+						<label class="form-check-label" for="ringCheck"> Ring </label>
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="mallCheck" />
+						<label class="form-check-label" for="mallCheck"> Mall </label>
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="homeCheck" />
+						<label class="form-check-label" for="homeCheck"> Home </label>
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="airportCheck" />
+						<label class="form-check-label" for="airportCheck"> Airport </label>
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" value="" id="bestCheck" />
+						<label class="form-check-label" for="bestCheck"> Show Best </label>
+					</div>
+					<div id="outputText" style="white-space: pre-line"></div>
+					<div class="btn-group-vertical">
+						<button type="button" class="btn btn-info" data-bs-dismiss="modal" id="pasteButton">Paste Image</button>
+						<button type="button" class="btn btn-success" data-bs-dismiss="modal" id="calcButton">Calculate</button>
+						<button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="printButton">Print</button>
+						<button type="button" class="btn btn-info" data-bs-dismiss="modal" id="undoButton">Undo</button>
+						<button type="button" class="btn btn-warning" data-bs-dismiss="modal" id="resetButton">Reset</button>
+						<button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="clearButton">Clear</button>
+					</div>
+					<div class="spinner-border" id="spinner" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			let imageURL = 'karutaDateImages/emojis/';
+			// imageURL = "https://discord.com/assets/";
+			let allMoves = [];
+			let modal = new bootstrap.Modal($('#modal')[0]);
+			let canvas = document.getElementById('canvas');
+			let width = (canvas.width = innerWidth);
+			let height = (canvas.height = innerHeight - 6);
+			let tileWidth = width / 11;
+			let tileHeight = height / 15;
+			let sin = [0, 1, 0, -1];
+			let cos = [1, 0, -1, 0];
+			tileWidth = tileHeight = Math.min(width / 11, height / 15);
+			canvas.width = width = tileWidth * 11;
+			canvas.height = height = tileHeight * 15;
+			window.onresize = () => {
+				width = canvas.width = innerWidth;
+				height = canvas.height = innerHeight - 6;
+				tileWidth = tileHeight = Math.min(width / 11, height / 15);
+				canvas.width = width = tileWidth * 11;
+				canvas.height = height = tileHeight * 15;
+			};
+			let mikeyMap = {
+				road: 'm',
+				gas: 'g',
+				fair: 'fair',
+				sandwich: 's',
+				juice: 'j',
+				flower: 'f',
+				theater: 'theatre',
+				spaghetti: 'i',
+				taco: 't',
+				nightclub: 'n',
+				ballroom: 'b',
+				mall: 'shop',
+				ring: 'r',
+				airport: 'a',
+				coffee: 'c',
+				home: 'home',
+			};
+			let ctx = canvas.getContext('2d');
+			let emojis = {
+				spaghetti: imageURL + 'fea9f79514871312e3d97d243548bb69.svg',
+				taco: imageURL + '2edf2d23ff03c3e4429ae709d5c3e6de.svg',
+				juice: imageURL + '6bd52eef967d3df855102935a93c9a70.svg',
+				coffee: imageURL + '2e081ee00be98dbfc615fa5d5dc249b1.svg',
+				gas: imageURL + 'aceae280075be9b5026cf651f580a699.svg',
+				flower: imageURL + 'cf977724a615ddf7aa9610c50a577536.svg',
+				theater: imageURL + '74753e5398ed3c86145f696cca04ed5b.svg',
+				ballroom: imageURL + '762f76a5eef7c38bde88c1888726e75d.svg',
+				sandwich: imageURL + '38fadb5ec7c550dd3c3a513f2135dadc.svg',
+				nightclub: imageURL + '4e4a4ac66710b0aecf931cd72cd65d9e.svg',
+				fair: imageURL + 'e8c52ade4aba5b3f303de1db23345b7f.svg',
+				mall: imageURL + 'a2ba6861bf663df7158a5699cae07c1c.svg',
+				ring: imageURL + '8c1770ed85c17cfc28bdcba042e4388d.svg',
+				home: imageURL + '2c371712123bf19d0d7d6d1f7980a701.svg',
+				airport: imageURL + 'f77079e6e8625b28a365f021e983cd4d.svg',
+				tree: imageURL + '5dca95ac71f782daf8bdff7e8114d656.svg',
+			};
+			let selectedCell;
+			let map = {
+				s: 'spaghetti',
+				t: 'taco',
+				j: 'juice',
+				c: 'coffee',
+				g: 'gas',
+				f: 'flower',
+				T: 'theater',
+				b: 'ballroom',
+				S: 'sandwich',
+				n: 'nightclub',
+				F: 'fair',
+				m: 'mall',
+				r: 'ring',
+				h: 'home',
+				a: 'airport',
+				'-': 'tree',
+				R: 'road',
+				B: 'blocked',
+			};
+			let reversedMap = Object.fromEntries(Object.entries(map).map((e) => [e[1], e[0]]));
+			let images = {};
+			let board =
+				localStorage?.getItem('gamchaDatingMap') ??
+				'RRRRRRRRRRRR-R-RjR-B-RRBRRRRRRRRRR-RSRnR-RhRRRRRRRRRRRRR-RfB-R-B-RRBRRRRRRRRRRsRbRFBtB-RRRRBRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-BTRgB-RaRRRRRRRRRRRRRgR-R-RcRgRRRRRRRRRRRR';
+			// let board = "RRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRR"
+
+			let direction = +localStorage?.getItem('gamchaDatingDirection') ?? 0;
+			Object.entries(emojis).forEach((e) => {
+				images[e[0]] = new Image();
+				images[e[0]].onload = () => {};
+				images[e[0]].src = e[1];
+			});
+			// let borders = ["-----", "- ----", "-----", "--  --", " ----", "--  --", " ----", "------", "-- --", "- ----", "--- -", "------", " -- -", "------", "-----"];
+			class Cell {
+				constructor(board, name, x, y) {
+					this.board = board;
+					this.name = name;
+					this.cooldown = 0;
+					this.x = x;
+					this.y = y;
+				}
+				get image() {
+					return images[this.name];
+				}
+				render() {
+					if (this.name != 'road' && this.name != 'blocked') {
+						ctx.drawImage(this.image, this.x * tileWidth, this.y * tileHeight, tileWidth, tileHeight);
+						if (this.cooldown) {
+							ctx.fillStyle = 'rgba(0.5,0.5,0.5,0.5)';
+							ctx.fillRect(this.x * tileWidth, this.y * tileHeight, tileWidth, tileHeight);
+						}
+					} else {
+						ctx.fillStyle = this.name == 'road' ? 'lightskyblue' : 'white';
+						ctx.fillRect(this.x * tileWidth, this.y * tileHeight, tileWidth, tileHeight);
+						if (this.x == this.board.position[0] && this.y == this.board.position[1]) {
+							let x = (this.x + 0.5) * tileWidth;
+							let y = (this.y + 0.5) * tileHeight;
+							ctx.strokeStyle = 'black';
+							ctx.beginPath();
+							ctx.moveTo(x, y);
+							ctx.lineTo(x + (Math.cos((this.board.direction * Math.PI) / 2) * tileWidth) / 3, y + (Math.sin((this.board.direction * Math.PI) / 2) * tileHeight) / 3);
+							ctx.lineTo(x + (Math.cos(((this.board.direction + 1 / 3) * Math.PI) / 2) * tileWidth) / 3, y + (Math.sin(((this.board.direction + 1 / 3) * Math.PI) / 2) * tileHeight) / 3);
+							ctx.moveTo(x + (Math.cos((this.board.direction * Math.PI) / 2) * tileWidth) / 3, y + (Math.sin((this.board.direction * Math.PI) / 2) * tileHeight) / 3);
+							ctx.lineTo(x + (Math.cos(((this.board.direction - 1 / 3) * Math.PI) / 2) * tileWidth) / 3, y + (Math.sin(((this.board.direction - 1 / 3) * Math.PI) / 2) * tileHeight) / 3);
+							ctx.stroke();
+						}
+					}
+				}
+				visit() {
+					this.cooldown = 10;
+					switch (this.name) {
+						case 'spaghetti':
+						case 'taco':
+							this.board.food += 60;
+							break;
+						case 'juice':
+						case 'coffee':
+							this.board.drink += 60;
+							break;
+						case 'gas':
+							this.board.gas += 100;
+							break;
+						case 'flower':
+							this.board.happy += 100;
+							this.cooldown = 1000;
+							break;
+						case 'theater':
+							this.board.happy += 60;
+							break;
+						case 'ballroom':
+							this.board.happy += 100;
+							this.board.food -= 10;
+							this.board.drink -= 15;
+							break;
+						case 'sandwich':
+							this.board.food += 40;
+							this.board.drink += 20;
+							break;
+						case 'nightclub':
+							this.board.drink += 40;
+							this.board.happy += 40;
+							break;
+						case 'fair':
+							this.board.food += 20;
+							this.board.drink += 20;
+							this.board.happy += 40;
+							break;
+						case 'mall':
+							this.board.APbonus += 30;
+							this.cooldown = 1000;
+							break;
+						case 'ring':
+							this.board.ring = true;
+							this.cooldown = 1000;
+							break;
+						case 'airport':
+							this.board.happy -= 10;
+							this.board.airport = true;
+							this.cooldown = 1000;
+							break;
+						case 'home':
+							this.board.food += 4;
+							this.board.drink += 6;
+							this.board.happy += 8;
+							this.board.time += 4;
+							this.board.home = true;
+							this.cooldown = 1000;
+							break;
+					}
+					this.board.gas = Math.min(100, this.board.gas);
+					this.board.food = Math.min(100, this.board.food);
+					this.board.drink = Math.min(100, this.board.drink);
+					this.board.happy = Math.min(100, this.board.happy);
+					//stats
+				}
+			}
+			class Board {
+				constructor(cells) {
+					this.cells = cells
+						.match(/.{11}/g)
+						.map((e) => e.split(''))
+						.map((e, y) => e.map((e, x) => new Cell(this, map[e], x, y)));
+
+					this.gas = 100;
+					this.food = 50;
+					this.drink = 50;
+					this.happy = 75;
+					this.time = 100;
+
+					this.depth = 0;
+					this.position = [+$('#x').val(), +$('#y').val()];
+					this.direction = direction;
+					this.loop = false;
+					this.renderLoop = true;
+
+					this.home = false;
+					this.airport = false;
+					this.ring = false;
+					this.APbonus = 0;
+
+					this.storedPaths = {};
+					this.pathCounts = {};
+					this.lastState;
+					this.queue = [];
+					this.frame = 0;
+
+					this.stepsChecked = 0;
+
+					this.tick();
+				}
+				get state() {
+					return {
+						gas: this.gas,
+						food: this.food,
+						drink: this.drink,
+						happy: this.happy,
+						time: this.time,
+						position: [...this.position],
+						direction: this.direction,
+						cooldowns: []
+							.concat(...this.cells)
+							.filter((e) => e.cooldown)
+							.map((e) => ({ x: e.x, y: e.y, cooldown: e.cooldown })),
+						ring: this.ring,
+						airport: this.airport,
+						home: this.home,
+						APbonus: this.APbonus,
+						lastState: this.lastState,
+						score: this.score,
+						sum: this.sum,
+						status: this.status,
+						depth: this.depth,
+					};
+				}
+				set state(state) {
+					this.gas = state.gas;
+					this.food = state.food;
+					this.drink = state.drink;
+					this.happy = state.happy;
+					this.time = state.time;
+					this.direction = state.direction;
+					this.position = [...state.position];
+					[].concat(...this.cells).forEach((e) => (e.cooldown = 0));
+					state.cooldowns.forEach((e) => (this.cells[e.y][e.x].cooldown = e.cooldown));
+					this.ring = state.ring;
+					this.airport = state.airport;
+					this.home = state.home;
+					this.APbonus = state.APbonus;
+					this.lastState = state.lastState;
+					this.depth = state.depth;
+				}
+				set board(cells) {
+					console.log(cells);
+					cells
+						.match(/.{11}/g)
+						.map((e) => e.split(''))
+						.forEach((e, y) => e.forEach((e, x) => (this.cells[y][x].name = map[e])));
+				}
+				get details() {
+					let path = [];
+					let s = this.lastState;
+					while (s) {
+						path.unshift(s);
+						s = s.lastState;
+					}
+					return `Gas: ${this.gas}\nFood: ${this.food}\nDrink: ${this.drink}\nEntertainment: ${this.happy}\nTime: ${this.time}\nStatus: ${this.status}\nScore: ${Math.round(this.score)} ${
+						this.APbonus ? `(${Math.round(this.score) - this.APbonus}+${this.APbonus}) ` : ''
+					}(${this.score.toFixed(2)})\n${path
+						.map((e) => e.moveTo.name)
+						.filter((e) => e != 'road')
+						.sort()
+						.join(', ')}\n${path.map((e) => mikeyMap[e.moveTo.name]).join(' ')}`;
+				}
+				printDetails() {
+					console.log(this.details);
+				}
+				print() {
+					console.log(
+						this.cells
+							.flat()
+							.map((e) => reversedMap[e.name])
+							.join('')
+					);
+				}
+				save() {
+					localStorage.setItem(
+						'gamchaDatingMap',
+						this.cells
+							.flat()
+							.map((e) => reversedMap[e.name])
+							.join('')
+					);
+					direction = this.direction;
+					localStorage.setItem('gamchaDatingDirection', this.direction);
+				}
+				start() {
+					this.loop = true;
+					this.startTime = Date.now();
+					$('#spinner').show();
+					// this.tick();
+				}
+				render() {
+					if ($('#bestCheck').prop('checked')) {
+						//0 0
+						//1 0
+						//1 1
+						//0 - no
+						//1 - yes
+						//2 - maybe
+						let vals = {
+							success: { checked: $('#successCheck').prop('checked'), indeterminate: $('#successCheck').prop('indeterminate'), val: 1 },
+							ring: { checked: $('#ringCheck').prop('checked'), indeterminate: $('#ringCheck').prop('indeterminate'), val: 10 },
+							mall: { checked: $('#mallCheck').prop('checked'), indeterminate: $('#mallCheck').prop('indeterminate'), val: 100 },
+							home: { checked: $('#homeCheck').prop('checked'), indeterminate: $('#homeCheck').prop('indeterminate'), val: 2 },
+							airport: { checked: $('#airportCheck').prop('checked'), indeterminate: $('#airportCheck').prop('indeterminate'), val: 3 },
+						};
+						Object.values(vals).forEach((e) => {
+							e.allowed = e.checked || e.indeterminate;
+							e.required = e.checked && !e.indeterminate;
+						});
+						let options = [
+							!vals.success.required && vals.ring.allowed && vals.mall.allowed && !vals.home.required && vals.airport.allowed ? -113 : 0,
+							!vals.success.required && vals.ring.allowed && vals.mall.allowed && vals.home.allowed && !vals.airport.required ? -112 : 0,
+							!vals.success.required && vals.ring.allowed && vals.mall.allowed && !vals.home.required && !vals.airport.required ? -111 : 0,
+							!vals.success.required && !vals.ring.required && vals.mall.allowed && !vals.home.required && vals.airport.allowed ? -103 : 0,
+							!vals.success.required && !vals.ring.required && vals.mall.allowed && vals.home.allowed && !vals.airport.required ? -102 : 0,
+							!vals.success.required && !vals.ring.required && vals.mall.allowed && !vals.home.required && !vals.airport.required ? -101 : 0,
+							!vals.success.required && vals.ring.allowed && !vals.mall.required && !vals.home.required && vals.airport.allowed ? -13 : 0,
+							!vals.success.required && vals.ring.allowed && !vals.mall.required && vals.home.allowed && !vals.airport.required ? -12 : 0,
+							!vals.success.required && vals.ring.allowed && !vals.mall.required && !vals.home.required && !vals.airport.required ? -11 : 0,
+							!vals.success.required && !vals.ring.required && !vals.mall.required && !vals.home.required && vals.airport.allowed ? -3 : 0,
+							!vals.success.required && !vals.ring.required && !vals.mall.required && vals.home.allowed && !vals.airport.required ? -2 : 0,
+							!vals.success.required && !vals.ring.required && !vals.mall.required && !vals.home.required && !vals.airport.required ? -1 : 0,
+							vals.success.allowed && !vals.ring.required && !vals.mall.required && !vals.home.required && !vals.airport.required ? 1 : 0,
+							vals.success.allowed && !vals.ring.required && !vals.mall.required && vals.home.allowed && !vals.airport.required ? 2 : 0,
+							vals.success.allowed && !vals.ring.required && !vals.mall.required && !vals.home.required && vals.airport.allowed ? 3 : 0,
+							vals.success.allowed && vals.ring.allowed && !vals.mall.required && !vals.home.required && !vals.airport.required ? 11 : 0,
+							vals.success.allowed && vals.ring.allowed && !vals.mall.required && vals.home.allowed && !vals.airport.required ? 12 : 0,
+							vals.success.allowed && vals.ring.allowed && !vals.mall.required && !vals.home.required && vals.airport.allowed ? 13 : 0,
+							vals.success.allowed && !vals.ring.required && vals.mall.allowed && !vals.home.required && !vals.airport.required ? 101 : 0,
+							vals.success.allowed && !vals.ring.required && vals.mall.allowed && vals.home.allowed && !vals.airport.required ? 102 : 0,
+							vals.success.allowed && !vals.ring.required && vals.mall.allowed && !vals.home.required && vals.airport.allowed ? 103 : 0,
+							vals.success.allowed && vals.ring.allowed && vals.mall.allowed && !vals.home.required && !vals.airport.required ? 111 : 0,
+							vals.success.allowed && vals.ring.allowed && vals.mall.allowed && vals.home.allowed && !vals.airport.required ? 112 : 0,
+							vals.success.allowed && vals.ring.allowed && vals.mall.allowed && !vals.home.required && vals.airport.allowed ? 113 : 0,
+						]
+							.filter((e) => e)
+							.map((e) => this.storedPaths?.[e]?.[0])
+							.map((e) => e?.[e.length - 1])
+							.filter((e) => e)
+							.sort((a, b) => a.depth - b.depth)
+							.sort((a, b) => Math.round(b.score) - Math.round(a.score));
+						if (options[0]) {
+							this.state = options[0];
+							if ($('#outputText').text() != this.details) {
+								$('#outputText').text(this.details);
+							}
+						} else {
+							// this.lastState = this.loop ? this.lastState : undefined;
+							if ($('#outputText').text() != 'No valid paths') {
+								$('#outputText').text('No valid paths');
+							}
+						}
+						// console.log(options);
+					} else {
+						if ($('#outputText').text() != this.details) {
+							$('#outputText').text(this.details);
+						}
+					}
+					ctx.clearRect(0, 0, width, height);
+					this.cells.forEach((e) => e.forEach((e) => e.render()));
+					let path = [];
+					let s = this.lastState;
+					while (s) {
+						path.unshift(s);
+						s = s.lastState;
+					}
+					ctx.lineCap = 'round';
+					path?.forEach((e, i) => {
+						ctx.shadowColor = 'black';
+						ctx.shadowBlur = 5;
+						ctx.lineWidth = ((path.length - i) / path.length) * 20 + 5;
+						let x = e.position[0];
+						let y = e.position[1];
+						let x1 = e.moveTo.x;
+						let y1 = e.moveTo.y;
+						ctx.beginPath();
+						ctx.moveTo((x + 0.5) * tileWidth, (y + 0.5) * tileHeight);
+						let grad = ctx.createLinearGradient((x + 0.5) * tileWidth, (y + 0.5) * tileHeight, (x1 + 0.5) * tileWidth, (y1 + 0.5) * tileHeight);
+						grad.addColorStop(0, `hsl(${((i / path.length) * 360 * 2).toFixed(0)},100%,50%)`);
+						grad.addColorStop(1, `hsl(${(((i + 1) / path.length) * 360 * 2).toFixed(0)},100%,50%)`);
+						ctx.strokeStyle = grad;
+						if (e.moveTo.name == 'road') {
+							ctx.bezierCurveTo(
+								(x + 0.5) * tileWidth,
+								(y + 0.5) * tileHeight,
+								...((e) => [(e.x + 0.5) * tileWidth, (e.y + 0.5) * tileHeight])(this.getCell(x, y, e.direction)),
+								(x1 + 0.5) * tileWidth,
+								(y1 + 0.5) * tileHeight
+							);
+						} else {
+							ctx.lineTo((x1 + 0.5) * tileWidth, (y1 + 0.5) * tileHeight);
+						}
+						ctx.stroke();
+						ctx.shadowBlur = 0;
+					});
+					ctx.strokeStyle = 'black';
+					ctx.lineWidth = 1;
+					this.moves
+						.filter((e) => e)
+						.forEach((e) => {
+							ctx.strokeRect(e.x * tileWidth, e.y * tileHeight, tileWidth, tileHeight);
+						});
+				}
+				getCell(x, y, d, m) {
+					m = m ?? 1;
+					d = ((d ?? (m = 0) % 4) + 4) % 4;
+					y += sin[d] * m;
+					x += cos[d] * m;
+					if (x < 0 || x > 10 || y < 0 || y > 14) {
+						return undefined;
+					}
+					try {
+						return this.cells[y][x];
+					} catch {
+						return undefined;
+					}
+				}
+				get moves() {
+					let stops = [this.getCell(...this.position, this.direction + 1), this.getCell(...this.position, this.direction - 1)].map((e) =>
+						!e?.cooldown && e?.name != 'tree' && e?.name != 'road' && e?.name != 'blocked' ? e : undefined
+					);
+					let moves = ((c) => {
+						return new Array(4).fill(1).map((_, i) => (c ? this.getCell(c.x, c.y, i) : undefined));
+					})(this.getCell(...this.position, this.direction)).map((e) => ((e?.x != this.position[0] || e?.y != this.position[1]) && e?.name == 'road' ? e : undefined));
+					return [...moves, ...stops];
+				}
+				getBest() {
+					return Object.entries(this.storedPaths).map((e) => [e[0], e[1][0]]);
+				}
+				printStats() {
+					let n = Math.ceil(Math.log10(Math.max(...Object.values(this.pathCounts))));
+					console.log(
+						[
+							`${this.pathCounts.total} paths and ${this.stepsChecked} steps checked in ${((Date.now() - this.startTime) / 1000).toFixed(1)} seconds`,
+							...Object.entries(this.pathCounts)
+								.filter((e) => e[0] != 'total')
+								.map(
+									(e) =>
+										`${lengthen(e[1], n)} (${lengthen(((e[1] / this.pathCounts.total) * 100).toFixed(1), 5)}%) paths end ${
+											e[0] % 10 == -1 ? 'in sadness' : e[0] % 10 == 1 ? 'in happiness' : e[0] % 10 == 2 ? 'at home' : e[0] % 10 == 3 ? 'at the airport' : 'somewhere else idk'
+										} ${((s) => (s ? `with ${s}` : ''))(
+											[Math.abs(Math.trunc(e[0] / 10) % 10) == 1 ? 'a ring' : null, Math.trunc(e[0] / 100) ? 'an AP bonus' : null].filter((e) => e).join(' and ')
+										)}`
+								),
+							// `${lengthen(this.pathCounts[1], n)} (${((this.pathCounts[1] / this.pathCounts.total) * 100).toFixed(1)}%) paths end in happiness`,
+							// `${lengthen(this.pathCounts[2], n)} paths end at home`,
+							// `${lengthen(this.pathCounts[3], n)} paths end at the airport`,
+							// `${lengthen(this.pathCounts[-1], n)} paths end in sadness`,
+						].join('\n')
+					);
+				}
+				tick() {
+					if (this.loop) {
+						this.update();
+					}
+					if (this.renderLoop) {
+						this.render();
+					}
+					requestAnimationFrame(this.tick.bind(this));
+				}
+				update() {
+					//pick move
+					// console.log(this.moves, this.path, this.nextChoice);
+					let start = Date.now();
+					this.frame++;
+					while (Date.now() - start < 1000 / 60) {
+						//check move
+						let done = false;
+						switch (this.status % 10) {
+							case -1: //lost
+								//lost
+								done = true;
+								break;
+							case 0: //continue
+								break;
+							case 1: //win time
+								done = true;
+								break;
+							case 2: //win home
+								done = true;
+								break;
+							case 3: //airport
+								done = true;
+								break;
+						}
+						//next step
+						if (done) {
+							this.storedPaths[this.status] = this.storedPaths[this.status] ?? [];
+							this.storedPaths[this.status].push(
+								(() => {
+									let path = [this.state];
+									let s = this.state;
+									while (s?.lastState) {
+										path.unshift(s);
+										s = s.lastState;
+									}
+									// console.log(path);
+									return path;
+								})()
+							);
+							this.pathCounts[this.status] = (this.pathCounts[this.status] ?? 0) + 1;
+							this.pathCounts.total = (this.pathCounts.total ?? 0) + 1;
+							// if (this.storedPaths[this.status].length > )
+							this.storedPaths[this.status] = this.storedPaths[this.status]
+								// .sort((a, b) => a[a.length - 1].depth - b[b.length - 1].depth)
+								.sort((a, b) => Math.round(b[b.length - 1].score) - Math.round(a[a.length - 1].score));
+							this.storedPaths[this.status] = this.storedPaths[this.status].slice(0, 50);
+							if (this.stepsChecked % 50_000 == 0) {
+								this.printStats();
+							}
+
+							// console.log(this.path);
+							// let last;
+							// do {
+							// 	last = this.moveBack();
+							// console.log(this.moves, last);
+							// } while (this.moves.slice(last.i + 1).filter((e) => e).length == 0);
+							// this.nextChoice = last.i + 1;
+							// while (this.path.length && !this.moves.slice((this.nextChoice = this.moveBack() + 1)).filter((e) => e).length) {
+							// console.log(this.path);
+							// }
+						} else {
+							// let move = this.moves.slice(this.nextChoice).filter((e) => e)[0];
+							this.queue.push(...this.moves.filter((e) => e).map((e) => ({ x: e.x, y: e.y, state: this.state })));
+						}
+						let move = this.queue.pop();
+						if (!move) {
+							this.printStats();
+							console.log('No Moves');
+							$('#spinner').hide();
+							this.loop = false;
+							return;
+						}
+						// console.log(move);
+						this.state = move.state;
+						this.move(move.x, move.y);
+						this.stepsChecked++;
+						if (!this.loop) {
+							this.printDetails();
+							return;
+						}
+					}
+					this.queue.sort((a, b) => b.state.sum - a.state.sum);
+				}
+				get score() {
+					// return this.status < 0 ? this.APbonus : this.airport ? this.sum : ((this.drink + this.food + this.happy) / 6) * (this.home ? 1 - this.time / 100 : 1) + this.APbonus;
+					return this.airport
+						? this.sum
+						: Math.min(this.drink, this.food, this.happy, this.gas) <= 0
+						? this.APbonus
+						: ((this.drink + this.food + this.happy) / 6) * (1 - this.time / 100) + this.APbonus;
+				}
+				get sum() {
+					return Math.min(this.gas / 10, this.food / 4, this.drink / 6, this.happy / 8, this.time / 4);
+				}
+				get status() {
+					let res = 0;
+					if (Math.min(this.gas, this.food, this.drink, this.happy) <= 0) {
+						res = -1;
+					} else if (this.time <= 0) {
+						res = 1;
+					} else if (this.home) {
+						res = 2;
+					} else if (this.airport) {
+						res = 3;
+					}
+					if (this.ring) {
+						res += 10 * Math.sign(res);
+					}
+					if (this.APbonus) {
+						res += 100 * Math.sign(res);
+					}
+					return res;
+				}
+				move(x, y) {
+					let moves = this.moves;
+					let newCell = moves.filter((e) => e?.x == x && e?.y == y)[0];
+					if (!newCell) {
+						return false;
+					}
+					// allMoves.push([...this.position, this.direction, this.gas, this.food, this.drink, this.happy, this.time, x, y].join(","));
+
+					this.lastState = this.state;
+					this.food -= 4;
+					this.drink -= 6;
+					this.happy -= 8;
+					this.time -= 4;
+
+					let i = moves.indexOf(newCell);
+
+					[].concat(...this.cells).forEach((e) => (e.cooldown = Math.max(e.cooldown - 1, 0)));
+					if (i < 4) {
+						this.gas -= 10;
+						this.direction = i;
+						this.position = [newCell.x, newCell.y];
+					} else {
+						newCell.visit();
+					}
+					this.depth = (this.lastState.depth ?? 0) + 1;
+					this.lastState.moveTo = { x: newCell.x, y: newCell.y, name: newCell.name };
+					// console.log(`Gas: ${this.gas}\nFood: ${this.food}\nDrink: ${this.drink}\nEntertainment: ${this.happy}\nTime: ${this.time}`);
+					return true;
+				}
+				moveBack() {
+					// let last = this.path.pop();
+					let last = this.lastState;
+					if (!last) {
+						return -1;
+					}
+					this.state = this.lastState;
+				}
+			}
+			window.oncontextmenu = (e) => {
+				e.preventDefault();
+				canvas.onclick(e);
+				return false;
+			};
+			canvas.onclick = (e) => {
+				if (e.target.id == 'canvas') {
+					let x = Math.floor(e.offsetX / tileWidth);
+					let y = Math.floor(e.offsetY / tileHeight);
+					if (e.button == 0) {
+						gameBoard.move(x, y);
+						gameBoard.printDetails();
+					} else {
+						if (x == gameBoard.position[0] && y == gameBoard.position[1]) {
+							do {
+								gameBoard.direction = (gameBoard.direction + 1) % 4;
+							} while (!['road', 'blocked'].includes(gameBoard.getCell(...gameBoard.position, gameBoard.direction)?.name ?? 'tree'));
+							gameBoard.save();
+						} else if (x % 2 == 0 && y % 2 == 0) {
+							return;
+						} else if (x % 2 ^ y % 2) {
+							let cell = gameBoard.getCell(x, y);
+							cell.name = cell.name == 'road' ? 'blocked' : 'road';
+							gameBoard.save();
+						} else {
+							selectedCell = gameBoard.getCell(x, y);
+							modal.show();
+						}
+						// modal.show();
+						// console.log(`[${x}, ${y}]`);
+					}
+				}
+			};
+			$("input[type='checkbox']")
+				.click(function (e) {
+					var el = $(this);
+					if (this.id == 'bestCheck' || this.id == 'airportCheck') {
+						return;
+					}
+
+					switch (el.data('checked')) {
+						// unchecked, going indeterminate
+						case 0:
+							el.data('checked', 1);
+							el.prop('indeterminate', true);
+							break;
+
+						// indeterminate, going checked
+						case 1:
+							el.data('checked', 2);
+							el.prop('indeterminate', false);
+							el.prop('checked', true);
+							break;
+
+						// checked, going unchecked
+						default:
+							el.data('checked', 0);
+							el.prop('indeterminate', false);
+							el.prop('checked', false);
+					}
+				})
+				.data('checked', 0);
+			$('#successCheck').data('checked', 2).prop('indeterminate', false).prop('checked', true);
+			$('#ringCheck').data('checked', 1).prop('indeterminate', true).prop('checked', true);
+			$('#mallCheck').data('checked', 1).prop('indeterminate', true).prop('checked', true);
+			$('#homeCheck').data('checked', 1).prop('indeterminate', true).prop('checked', true);
+			$('#airportCheck').prop('checked', false);
+			$('#bestCheck').prop('checked', true);
+			$('#modalBody').append(
+				Object.entries(emojis).map((e) =>
+					$('<img>')
+						.attr('src', e[1])
+						.addClass('img-thumbnail')
+						.click(() => {
+							// console.log(e, selectedCell);
+							selectedCell.name = e[0];
+							gameBoard.save();
+							modal.hide();
+						})
+				)
+			);
+			$('#pasteButton').click((e) => {
+				navigator.clipboard.read().then((e) => {
+					let f = e.filter((e) => e.types.includes('image/png'))[0];
+					if (f) {
+						f.getType('image/png').then((e) => {
+							let img = new Image();
+							img.onload = () => {
+								loadImage(img);
+							};
+							img.src = URL.createObjectURL(e);
+						});
+					}
+				});
+			});
+			$('#printButton').click(() => {
+				gameBoard.print();
+			});
+			$('#undoButton').click(() => {
+				gameBoard.moveBack();
+			});
+			$('#calcButton').click(() => {
+				gameBoard.start();
+			});
+			$('#resetButton').click(() => {
+				gameBoard.pathCounts = {};
+				gameBoard.storedPaths = {};
+				let s = gameBoard.state;
+				while (s.lastState) {
+					s = s.lastState;
+				}
+				gameBoard.state = s;
+				gameBoard.loop = false;
+				gameBoard.depth = 0;
+				gameBoard.stepsChecked = 0;
+				gameBoard.position = [+$('#x').val(), +$('#y').val()];
+				gameBoard.gas = +$('#gas').val();
+				gameBoard.food = +$('#food').val();
+				gameBoard.drink = +$('#drink').val();
+				gameBoard.happy = +$('#happy').val();
+				gameBoard.time = +$('#time').val();
+				gameBoard.queue = [];
+				$('#spinner').hide();
+				gameBoard.save();
+			});
+			$('#clearButton').click(() => {
+				$('#resetButton').click();
+				gameBoard.loop = false;
+				gameBoard.cells.flat().forEach((e) => (e.name == 'blocked' ? (e.name = 'road') : e.name != 'road' ? (e.name = 'tree') : ''));
+				gameBoard.lastState = undefined;
+				gameBoard.direction = direction ? 2 : 0;
+				gameBoard.save();
+				// gameBoard.renderLoop = false;
+				// gameBoard = new Board(
+				// 	"RRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRRR-R-R-R-R-RRRRRRRRRRRR"
+				// );
+			});
+			function lengthen(s, n, c) {
+				return new Array(Math.max(n - s.toString().length, 0)).fill(c ?? ' ').join('') + s;
+			}
+			let gameBoard = new Board(board);
+			function loadImage(img) {
+				$('#gas').val(100);
+				$('#food').val(50);
+				$('#drink').val(50);
+				$('#happy').val(75);
+				$('#time').val(100);
+				$('#resetButton').click();
+				let res = parseImage(ctx, img);
+				gameBoard.board = res.board;
+				gameBoard.direction = res.right ? 0 : 2;
+				gameBoard.save();
+			}
+			$(window).on('dragenter', (e) => {
+				e.originalEvent.preventDefault();
+				$('#dropzone').show();
+			});
+			$('#dropzone')
+				.on('dragenter', (e) => {
+					e.originalEvent.preventDefault();
+					e.originalEvent.dataTransfer.dropEffect = 'copy';
+					// console.log(e);
+				})
+				.on('dragover', (e) => {
+					e.originalEvent.preventDefault();
+					e.originalEvent.dataTransfer.dropEffect = 'copy';
+					// console.log(e);
+				})
+				.on('dragleave', (e) => {
+					e.originalEvent.preventDefault();
+					$('#dropzone').hide();
+				})
+				.on('drop', (e) => {
+					console.log();
+					e.originalEvent.preventDefault();
+					let f = [...e.originalEvent.dataTransfer.files].filter((e) => e)[0];
+					if (f) {
+						let img = new Image();
+						img.onload = () => {
+							loadImage(img);
+						};
+						img.src = URL.createObjectURL(f);
+					}
+					$('#dropzone').hide();
+				});
+
+			$('#spinner').hide();
+			gameBoard.tick();
+			function pixel8(ctx, image) {
+				'use strict';
+
+				// Defaults for x-offset, y-offset, width, and height values
+				let x = 0;
+				let y = 0;
+				let w = image.width;
+				let h = image.height;
+
+				ctx.clearRect(0, 0, w, h);
+				ctx.drawImage(image, x, y);
+				var _data = ctx.getImageData(0, 0, w, h);
+				// console.log(_data);
+				var data = _data.data;
+				data.width = _data.width;
+				data.height = _data.height;
+
+				// Returns {red, green, blue, alpha} object of a single specified pixel
+				// or sets the specified pixel.
+				data.pixelAt = function (x, y, r, g, b) {
+					var i = y * this.width * 4 + x * 4;
+
+					if (!isNaN(r)) {
+						return this[i] == r && this[i + 1] == g && this[i + 2] == b;
+					} else
+						return {
+							red: this[i],
+							green: this[i + 1],
+							blue: this[i + 2],
+						};
+				};
+
+				// Draws the pixel data into a canvas
+				data.draw = function (ctx, x, y) {
+					ctx.putImageData(_data, x, y);
+				};
+
+				return data;
+			}
+			function parseImage(ctx, img) {
+				ctx.drawImage(img, 0, 0);
+
+				let data = pixel8(ctx, img);
+				let colorMap = {
+					road: [225, 233, 236],
+					blocked: [103, 124, 168],
+				};
+				let res = {
+					right: [410, 575, 47, 108, 250],
+					left: [390, 575, 78, 195, 250],
+					board: new Array(15).fill(1).map((e) => new Array(11).fill('R')),
+				};
+				let emojiLocations = [
+					[263, 153, 0, 0],
+					[324, 153, 1, 0],
+					[385, 153, 2, 0],
+					[445, 153, 3, 0],
+					[506, 153, 4, 0],
+					[253, 187, 0, 1],
+					[319, 187, 1, 1],
+					[385, 187, 2, 1],
+					[450, 187, 3, 1],
+					[516, 187, 4, 1],
+					[240, 228, 0, 2],
+					[312, 228, 1, 2],
+					[385, 228, 2, 2],
+					[457, 228, 3, 2],
+					[529, 228, 4, 2],
+					[225, 276, 0, 3],
+					[305, 276, 1, 3],
+					[385, 276, 2, 3],
+					[464, 276, 3, 3],
+					[544, 276, 4, 3],
+					[206, 336, 0, 4],
+					[295, 336, 1, 4],
+					[385, 336, 2, 4],
+					[474, 336, 3, 4],
+					[563, 336, 4, 4],
+					[182, 411, 0, 5],
+					[283, 411, 1, 5],
+					[385, 411, 2, 5],
+					[486, 411, 3, 5],
+					[587, 411, 4, 5],
+					[150, 508, 0, 6],
+					[267, 508, 1, 6],
+					[385, 508, 2, 6],
+					[502, 508, 3, 6],
+					[619, 508, 4, 6],
+				];
+				let roadColor = [53, 86, 113];
+				let roadPixels = [
+					[314, 181, 2, 1],
+					[374, 178, 4, 1],
+					[434, 178, 6, 1],
+					[487, 181, 8, 1],
+					[289, 201, 1, 2],
+					[352, 201, 3, 2],
+					[421, 201, 5, 2],
+					[445, 201, 7, 2],
+					[508, 201, 9, 2],
+					[298, 215, 2, 3],
+					[364, 216, 4, 3],
+					[438, 213, 6, 3],
+					[504, 221, 8, 3],
+					[283, 236, 1, 4],
+					[351, 236, 3, 4],
+					[379, 236, 5, 4],
+					[449, 236, 7, 4],
+					[519, 236, 9, 4],
+					[296, 249, 2, 5],
+					[368, 249, 4, 5],
+					[431, 249, 6, 5],
+					[501, 248, 8, 5],
+					[268, 279, 1, 6],
+					[347, 273, 3, 6],
+					[423, 278, 5, 6],
+					[453, 278, 7, 6],
+					[529, 274, 9, 6],
+					[286, 298, 2, 7],
+					[365, 298, 4, 7],
+					[445, 299, 6, 7],
+					[515, 301, 8, 7],
+					[253, 329, 1, 8],
+					[336, 331, 3, 8],
+					[426, 329, 5, 8],
+					[511, 331, 7, 8],
+					[556, 331, 9, 8],
+					[273, 359, 2, 9],
+					[349, 365, 4, 9],
+					[439, 363, 6, 9],
+					[531, 366, 8, 9],
+					[231, 398, 1, 10],
+					[323, 395, 3, 10],
+					[413, 394, 5, 10],
+					[511, 396, 7, 10],
+					[587, 397, 9, 10],
+					[253, 433, 2, 11],
+					[356, 433, 4, 11],
+					[446, 424, 6, 11],
+					[546, 431, 8, 11],
+					[213, 483, 1, 12],
+					[316, 481, 3, 12],
+					[409, 481, 5, 12],
+					[518, 483, 7, 12],
+					[619, 481, 9, 12],
+					[219, 528, 2, 13],
+					[333, 525, 4, 13],
+					[449, 519, 6, 13],
+					[569, 528, 8, 13],
+				];
+				res.right = data.pixelAt(...res.right);
+				res.left = data.pixelAt(...res.left);
+				roadPixels.forEach((e) => {
+					res.board[e[3]][e[2]] = data.pixelAt(e[0], e[1], ...roadColor) ? 'R' : 'B';
+				});
+				emojiLocations.forEach((e) => {
+					let a = ctx.getImageData(e[0], e[1], 30, 30);
+					Object.entries(images).forEach((i) => {
+						ctx.drawImage(i[1], e[0], e[1], 30, 30);
+						let b = ctx.getImageData(e[0], e[1], 30, 30).data;
+						let count = pixelmatch(a.data, b, null, 30, 30, { threshold: 0.2 });
+						if (count <= 1) {
+							res.board[e[3] * 2 + 1][e[2] * 2 + 1] = reversedMap[i[0]];
+						}
+						ctx.putImageData(a, e[0], e[1]);
+					});
+				});
+				res.board = res.board.flat().join('');
+				return res;
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			Player
+			<select id="asker"></select>
+			thinks it was
+			<select id="person"></select>
+			in the
+			<select id="place"></select>
+			with the
+			<select id="thing"></select>
+			but
+			<select id="answerer"></select>
+			disproved it by showing
+			<select id="card"></select>
+			<br /><button onclick="createRumor()">Go</button>
+		</div>
+		<p id="text"></p>
+		<script>
+			const text = document.getElementById('text');
+			const Guests = ['Mustard', 'Plum', 'Green', 'Peacock', 'Scarlet', 'White'];
+			const Guest = { m: 'Mustard', pl: 'Plum', g: 'Green', pe: 'Peacock', s: 'Scarlet', w: 'White' };
+			const Weapons = ['Knife', 'Candlestick', 'Pistol', 'Poison', 'Trophy', 'Rope', 'Bat', 'Ax', 'Dumbbell'];
+			const Weapon = { k: 'Knife', c: 'Candlestick', pi: 'Pistol', po: 'Poison', t: 'Trophy', r: 'Rope', b: 'Bat', a: 'Ax', d: 'Dumbbell' };
+			const Rooms = ['Hall', 'Dining Room', 'Kitchen', 'Patio', 'Observatory', 'Theater', 'Living Room', 'Spa', 'Guest House'];
+			const Room = { h: 'Hall', d: 'Dining Room', k: 'Kitchen', p: 'Patio', o: 'Observatory', t: 'Theater', l: 'Living Room', s: 'Spa', g: 'Guest House' };
+			const Cards = {
+				m: 'Mustard',
+				pl: 'Plum',
+				gr: 'Green',
+				pe: 'Peacock',
+				sc: 'Scarlet',
+				w: 'White',
+				kn: 'Knife',
+				c: 'Candlestick',
+				pi: 'Pistol',
+				po: 'Poison',
+				tr: 'Trophy',
+				r: 'Rope',
+				b: 'Bat',
+				a: 'Ax',
+				du: 'Dumbbell',
+				h: 'Hall',
+				di: 'Dining Room',
+				ki: 'Kitchen',
+				pa: 'Patio',
+				o: 'Observatory',
+				th: 'Theater',
+				l: 'Living Room',
+				s: 'Spa',
+				gu: 'Guest House',
+			};
+			const PlayerCount = 5;
+			const PlayerNames = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo'];
+			const CardsPerPlayer = Math.floor((Guests.length + Weapons.length + Rooms.length - 3) / PlayerCount);
+			const ExtraCards = (Guests.length + Weapons.length + Rooms.length - 3) % PlayerCount;
+			const Players = 'abcde';
+			const AskerElem = document.getElementById('asker');
+			const GuestElem = document.getElementById('person');
+			const RoomElem = document.getElementById('place');
+			const WeaponElem = document.getElementById('thing');
+			const AnswererElem = document.getElementById('answerer');
+			const CardElem = document.getElementById('card');
+			CardElem.innerHTML += "<option value=''>Unknown</option>";
+			for (let p = 0; p < PlayerNames.length; p++) {
+				AskerElem.innerHTML += "<option value='" + Players[p] + "'>" + PlayerNames[p] + '</option>';
+				AnswererElem.innerHTML += "<option value='" + Players[p] + "'>" + PlayerNames[p] + '</option>';
+			}
+			for (let g in Guest) {
+				GuestElem.innerHTML += "<option value='" + g + "'>" + Guest[g] + '</option>';
+			}
+			for (let r in Room) {
+				RoomElem.innerHTML += "<option value='" + r + "'>" + Room[r] + '</option>';
+			}
+			for (let w in Weapon) {
+				WeaponElem.innerHTML += "<option value='" + w + "'>" + Weapon[w] + '</option>';
+			}
+			for (let c in Cards) {
+				CardElem.innerHTML += "<option value='" + c + "'>" + Cards[c] + '</option>';
+			}
+			let ignoreCards = [];
+			let ignorePlayers = [];
+			/*
+			let rumors = [
+				"dkscm",
+				"mpska",
+				"dompo",
+				"bsmpodpo",
+				"mdgpon",
+				"npspod",
+				"bsskmsc",
+				"atmkb",
+				"dtwdb",
+				"almtn",
+				"ntmdb",
+				"dlpldb",
+				"btgkmgr",
+				"mlmrb",
+				"atpekb",
+				"nsskm",
+				"domka",
+				"mtstn",
+				"apgan",
+				"ngplbb",
+				"dkmpia",
+				"blwpiapi",
+				"mpsrn",
+				"nhpepid",
+				"dombm",
+				"dhmd",
+				"agpldn"
+			];
+			let rumors2 = [
+				"agpldn",
+				"noperm",
+				"mkgcd",
+				"adplrn",
+				"nopld",
+				"dhmaa"
+			];*/
+			let pastRumors = [];
+			let players = [];
+			let cards = Guests.concat(Weapons).concat(Rooms);
+			let unknownCards = cards.concat([]);
+			for (let c = 0; c < cards.length; c++) {
+				cards[c] = {
+					name: cards[c],
+					place: -1,
+				};
+			}
+			for (let p = 0; p < PlayerCount; p++) {
+				players[p] = {
+					knownCards: [],
+					possibleCards: Guests.concat(Weapons).concat(Rooms),
+					possibilitySets: [],
+				};
+			}
+			// 			knowCard(0,"Plum");
+			// 			knowCard(0,"Peacock");
+			// 			knowCard(0,"Theater");
+			// 			knowCard(0,"Living Room");
+			// 			knowCard(4,"Hall");
+			for (let p = 1; p < players.length; p++) {
+				for (let c = 0; c < players[0].knownCards.length; c++) {
+					notPossible(p, players[0].knownCards[c]);
+				}
+			}
+			function writeTable() {
+				let table = '<table><tr><th>Player</th><th>Known</th><th>Possible</th><th>Sets</th></tr>';
+				for (let p = 0; p < players.length; p++) {
+					let next =
+						'<tr><td>' +
+						[
+							"<mark style='background-color:hsla(" + Math.round((p / players.length) * 360) + ",100%,50%,0.5)'>" + PlayerNames[p] + '</mark>',
+							players[p].knownCards.join(', '),
+							players[p].possibleCards.join(', '),
+							players[p].possibilitySets.join('---'),
+						].join('</td><td>') +
+						'</td></tr>';
+					table += next;
+				}
+				table += '<p>' + unknownCards.join(', ') + '</p>';
+				for (let p = 0; p < players.length; p++) {
+					for (let c = 0; c < players[p].knownCards.length; c++) {
+						table = table.replace(
+							RegExp(players[p].knownCards[c], 'g'),
+							"<mark style='background-color:hsla(" + Math.round((p / players.length) * 360) + ",100%,50%,0.5)'>" + players[p].knownCards[c] + '</mark>'
+						);
+					}
+				}
+				let likelyAnswers = unknownCards.concat([]);
+				for (let p = 0; p < players.length; p++) {
+					for (let c = 0; c < players[p].possibleCards.length; c++) {
+						let i = likelyAnswers.indexOf(players[p].possibleCards[c]);
+						if (i !== -1) {
+							likelyAnswers.splice(i, 1);
+						}
+					}
+				}
+				table += '<p>' + likelyAnswers.join(', ') + '</p>';
+
+				text.innerHTML = table;
+			}
+			function askRumor(asker, answerer, cards) {
+				pastRumors.push({ asker: asker, answerer: answerer, cards: cards });
+				if (answerer === -1) {
+					for (let p = 0; p < players.length; p++) {
+						if (p !== asker && ignorePlayers.indexOf(p) == -1) {
+							for (let c = 0; c < cards.length; c++) {
+								notPossible(p, cards[c]);
+							}
+						}
+					}
+				} else if (typeof answerer == typeof '') {
+					if (isNaN(answerer[0])) {
+						answerer = Players.indexOf(answerer[0]) + answerer.slice(1);
+					}
+					let p = asker + 1;
+					if (p >= players.length) {
+						p -= players.length;
+					}
+					while (p != answerer[0]) {
+						if (ignorePlayers.indexOf(p) == -1) {
+							for (let c = 0; c < cards.length; c++) {
+								notPossible(p, cards[c]);
+							}
+						}
+						p++;
+						if (p >= players.length) {
+							p -= players.length;
+						}
+					}
+					knowCard(+answerer[0], answerer.slice(1));
+				} else {
+					let p = asker + 1;
+					if (p >= players.length) {
+						p -= players.length;
+					}
+					while (p !== answerer) {
+						if (ignorePlayers.indexOf(p) == -1) {
+							for (let c = 0; c < cards.length; c++) {
+								notPossible(p, cards[c]);
+							}
+						}
+						p++;
+						if (p >= players.length) {
+							p -= players.length;
+						}
+					}
+					let t = cards.concat([]);
+					for (let c = 0; c < t.length; c++) {
+						if (players[p].possibleCards.indexOf(t[c]) === -1 && players[p].knownCards.indexOf(t[c]) === -1) {
+							t.splice(c--, 1);
+						}
+					}
+					players[p].possibilitySets.push(t);
+					if (t.length == 1) {
+						knowCard(p, t[0]);
+					}
+				}
+				writeTable();
+			}
+			function knowCard(player, card) {
+				if (players[player].knownCards.length < CardsPerPlayer && players[player].knownCards.indexOf(card) === -1) {
+					players[player].knownCards.push(card);
+					unknownCards.splice(unknownCards.indexOf(card), 1);
+					for (let p = 0; p < players.length; p++) {
+						notPossible(p, card, p == player);
+					}
+				}
+				if (players[player].knownCards.length == CardsPerPlayer) {
+					players[player].possibleCards = [];
+				}
+				writeTable();
+			}
+			function rumored(code) {
+				if (typeof code !== typeof []) {
+					let t = [];
+					t.push(code[0]);
+					let i = 1;
+					// 					console.log(code[i],Room[code[i]]);
+					if (Room[code[i]]) {
+						t.push(code[i++]);
+					} else {
+						t.push(code.substr(i, 2));
+						i += 2;
+					}
+					if (Guest[code[i]]) {
+						t.push(code[i++]);
+					} else {
+						t.push(code.substr(i, 2));
+						i += 2;
+					}
+					if (Weapon[code[i]]) {
+						t.push(code[i++]);
+					} else {
+						t.push(code.substr(i, 2));
+						i += 2;
+					}
+					t.push(code.slice(i));
+					code = t;
+				}
+				let asker = Players.indexOf(code[0]);
+				let cards = [Room[code[1]], Guest[code[2]], Weapon[code[3]]];
+				let answerer = Players.indexOf(code[4][0]) + (code[4].toString().length > 1 ? Cards[code[4].slice(1)] : 0);
+				console.log(code, asker, cards, answerer);
+
+				askRumor(asker, answerer, cards);
+			}
+			function checkSets(player) {
+				console.log(player);
+				if (players[player].knownCards.length === CardsPerPlayer - 1) {
+					let st = [];
+					for (let i = 0; i < players[player].possibilitySets[0].length; i++) {
+						st.push(players[player].possibilitySets[0][i]);
+					}
+					for (let s = 1; s < players[player].possibilitySets.length; s++) {
+						for (let a = 0; a < st.length; a++) {
+							if (players[player].possibilitySets[s].indexOf(st[a]) === -1) {
+								st.splice(a--, 1);
+							}
+						}
+					}
+					console.log(st);
+				}
+			}
+			function notPossible(player, card, sets) {
+				let i = players[player].possibleCards.indexOf(card);
+				if (i >= 0) {
+					players[player].possibleCards.splice(i, 1);
+					if (!sets) {
+						for (let s = 0; s < players[player].possibilitySets.length; s++) {
+							let i = players[player].possibilitySets[s].indexOf(card);
+							if (i >= 0) {
+								players[player].possibilitySets[s].splice(i, 1);
+								if (players[player].possibilitySets[s].length === 1) {
+									knowCard(player, players[player].possibilitySets[s][0]);
+								}
+							}
+						}
+					}
+					if (players[player].knownCards.length + players[player].possibleCards.length == CardsPerPlayer) {
+						for (let c = 0; c < players[player].possibleCards.length; c++) {
+							knowCard(player, players[player].possibleCards[c]);
+						}
+					}
+				}
+			}
+			function callFunction(func, args) {
+				for (let a = 0; a < args.length; a++) {
+					func(args[a]);
+				}
+			}
+			function createRumor() {
+				let asker = AskerElem.selectedOptions[0].value;
+				let guest = GuestElem.selectedOptions[0].value;
+				let room = RoomElem.selectedOptions[0].value;
+				let weapon = WeaponElem.selectedOptions[0].value;
+				let answerer = AnswererElem.selectedOptions[0].value;
+				let card = CardElem.selectedOptions[0].value;
+				let code = asker + room + guest + weapon + answerer + card;
+				console.log(code);
+				rumored(code);
+			}
+			function ignoreCard(card) {
+				unknownCards.splice(unknownCards.indexOf(card), 1);
+				ignoreCards.push(card);
+			}
+			function ignorePlayer(player) {
+				// 				unknownCards.splice(unknownCards.indexOf(card),1);
+				ignorePlayers.push(player);
+			}
+			writeTable();
+		</script>
+	</body>
+</html>

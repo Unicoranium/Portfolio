@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Roman Numeral Calculator</title>
+	</head>
+
+	<body onLoad="calculate();">
+		<form>
+			Input: <input type="text" name="in" value="VI" /><br /><br /><br />
+			Output: <input type="text" name="out" />
+		</form>
+		<script>
+			var rules = [
+				['I', 1],
+				['V', 5],
+				['X', 10],
+				['L', 50],
+				['C', 100],
+				['D', 500],
+				['M', 1000],
+			];
+			function calculate() {
+				var string = document.getElementsByName('in')[0].value.toUpperCase().split('');
+				var num = [];
+				for (var s = 0; s < string.length; s++) {
+					var cur = rules.map(function (a) {
+						return a.indexOf(string[s]) > -1;
+					});
+					num.push(rules[cur.indexOf(true)][1]);
+				}
+				var res = num[0];
+				for (var n = 0; n < num.length - 1; n++) {
+					if (num[n] >= num[n + 1]) {
+						res += num[n + 1];
+					} else {
+						res += num[n + 1] - num[n] - num[n];
+					}
+				}
+				document.getElementsByName('out')[0].value = res;
+				requestAnimationFrame(calculate);
+			}
+		</script>
+	</body>
+</html>

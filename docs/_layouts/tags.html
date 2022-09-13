@@ -1,0 +1,48 @@
+---
+layout: default
+---
+
+<div class="tags">
+	{% assign tags = '' | split: '' %} {% for page in site.programs %} {% assign tags = tags | concat: page.tags %} {% endfor %} {% assign tags = tags | uniq | sort %} {%- if page.title -%}
+	<h1 class="page-heading">{{ page.title }}</h1>
+	{%- endif -%} {{ content }} {%- if tags.size > 0 -%}
+	<ul class="post-list">
+		{%- for tag in tags -%}
+		<li id="{{ tag | slugify | url_encode }}">
+			<a class="post-link capitalize" href="{{ site.baseurl }}/tags#{{ tag | slugify | url_encode }}">{{ tag }}</a>
+			{% case tag %} {% when 'karuta' %} Karuta is a discord bot that lets you play a trading card game. These are programs I made that relate to Karuta. {% when 'openComputers' %} OpenComputers
+			is a Minecraft mod that lets you build computers in the game. These are programs I made for those computers. {% when 'graphics' %} These are programs with a primary focus of graphics. {%
+			when 'school' %} These are programs that relate to something I was learning in school. Some are projects, some are just programs I made to learn. {% when 'simple' %} These programs are
+			typically short or very easy to understand. {% when 'math' %} These programs are to demonstrate some mathematical concept. {% when 'helper' %} These programs are used to help with a game.
+			{% when 'game' %} These programs are games. {% when 'optimization' %} These programs are about optimization algorithms like pathfinding. {% when 'calculation' %} These programs are about a
+			specific calculation. {% when 'simulation' %} These programs run some form of simulation. {% when 'khan academy' %} These programs were made on the Khan Academy website. These are all in
+			Processing JS, a graphics library for JS. {% endcase %}
+			<ul class="tag-list">
+				{% for page in site.programs %} {% if page.tags contains tag %}
+				<li>
+					<a class="tag-link" href="{{ page.url | relative_url }}">{{ page.title | escape }}</a>
+				</li>
+				{% endif %} {% endfor %} {%- if site.show_excerpts -%} {{ tag.excerpt }} {%- endif -%}
+			</ul>
+		</li>
+		{%- endfor -%}
+	</ul>
+
+	{%- endif -%}
+
+	<style>
+		.capitalize {
+			text-transform: capitalize;
+		}
+
+		:target {
+			background-color: #99910021;
+			border-radius: 10px;
+		}
+
+		.tag-link {
+			display: block;
+			font-size: 18px;
+		}
+	</style>
+</div>

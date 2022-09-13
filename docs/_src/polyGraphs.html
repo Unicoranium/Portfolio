@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+<html>
+
+	<head>
+	</head>
+
+
+	<body onload="onLoad();">
+    	<form>
+
+			<input type="number" width="100" height="50" style="border:5px solid lime; background:black; position:absolute; width:30px; height:25px; color:lime; text-align:center" id="Points" min=2 value=2>
+			<p style="border:5px solid lime; background:black; position:absolute; width:116.5px; height:26px; color:lime; text-align:center" id="PointsText">Number of Points</p>
+
+			<input type="number" width="100" height="50" style="border:5px solid lime; background:black; position:absolute; width:30px; height:25px; color:lime; text-align:center" id="Graph1X0" value=0>
+			<p style="border:5px solid lime; background:black; position:absolute; width:116.5px; height:26px; color:lime; text-align:center" id="Graph1X0Text">X value #1</p>
+
+			<input type="number" width="100" height="50" style="border:5px solid lime; background:black; position:absolute; width:30px; height:25px; color:lime; text-align:center" id="Graph1Y0" value=2>
+			<p style="border:5px solid lime; background:black; position:absolute; width:116.5px; height:26px; color:lime; text-align:center" id="Graph1Y0Text">Y value #1</p>
+
+			<p style="border:5px solid lime; background:black; position:absolute; width:171.5px; height:26px; color:lime; text-align:center" id="Graph1EquationText">Equation</p>
+			<p style="border:5px solid lime; background:black; position:absolute; width:171.5px; height:260px; color:lime; text-align:center" id="Graph1Equation"></p>
+
+    	</form>
+	</body>
+
+	<canvas id="Algebra2" width=800 height=800 style="background:black;border:15px solid lime;position:fixed;left:0px;top:0px"></canvas>
+	<script>
+		var canvas;
+		var ctx;
+		var points = 0;
+		var debug;
+		var boxHeight = 26;
+		function onLoad() {
+			canvas = document.getElementById("Algebra2");
+			ctx = canvas.getContext("2d");
+			canvas.width = innerWidth-250;
+			canvas.height = innerHeight-30;
+			ctx.translate(canvas.width/2, canvas.height/2);
+
+			document.getElementById("Points").style.left = canvas.width + 30 + "px";
+			document.getElementById("Points").style.top = 0 + "px";
+			document.getElementById("PointsText").style.left = canvas.width + 70 + "px";
+			document.getElementById("PointsText").style.top = -16 + "px";
+
+			document.getElementById("Graph1X0").style.left = canvas.width + 30 + "px";
+			document.getElementById("Graph1X0").style.top = 0+50 + "px";
+			document.getElementById("Graph1X0Text").style.left = canvas.width + 70 + "px";
+			document.getElementById("Graph1X0Text").style.top = -16+50 + "px";
+			document.getElementById("Graph1Y0").style.left = canvas.width + 30 + "px";
+			document.getElementById("Graph1Y0").style.top = 35+50 + "px";
+			document.getElementById("Graph1Y0Text").style.left = canvas.width + 70 + "px";
+			document.getElementById("Graph1Y0Text").style.top = 20+50 + "px";
+
+			document.getElementById("Graph1Equation").style.left = canvas.width + 45 + "px";
+			document.getElementById("Graph1Equation").style.top = 200 + "px";
+			document.getElementById("Graph1EquationText").style.left = canvas.width + 45 + "px";
+			document.getElementById("Graph1EquationText").style.top = 164 + "px";
+
+		}
+		function exp(value, exp) {
+			var total = 1;
+			for (var e = 0; e < exp; e++) {
+				total*=value;
+			}
+			return total
+		}
+		function getSlope(x1, y1, x2, y2) {
+			var m = (y2-y1)/(x2-x1);
+			var b = -(x1*m-y1);
+			if (b === -0) {
+				b = 0;
+			}
+			if (m === Infinity) {
+				return {x:x1};
+			}
+			return {m:-m, b:-b};
+		}
+		function getSlopeQuadratic(x0, y0, x1, y1, x2, y2) {
+			var a,b,c;
+			var func = [
+						{y:y0, ax:x0*x0, bx:x0, cx:1},
+						{y:y1, ax:x1*x1, bx:x1, cx:1},
+						{y:y2, ax:x2*x2, bx:x2, cx:1},
+						];
+
+			var newFunc = [
+							{y:func[0].y-func[1].y, ax:func[0].ax-func[1].ax, bx:func[0].bx-func[1].bx},
+							{y:func[1].y-func[2].y, ax:func[1].ax-func[2].ax, bx:func[1].bx-func[2].bx},
+							];
+			var tempAX = newFunc[0].ax;
+			for (var p in newFunc[0]) {
+				newFunc[0][p]*=newFunc[1].ax;
+			}
+			for (var p in newFunc[1]) {
+				newFunc[1][p]*=tempAX;
+			}
+			var nextFunc = {y:newFunc[0].y-newFunc[1].y, bx:newFunc[0].bx-newFunc[1].bx};
+			b = nextFunc.y/nextFunc.bx;
+
+			var newFunc = [
+							{y:func[0].y-func[1].y, ax:func[0].ax-func[1].ax, bx:func[0].bx-func[1].bx},
+							{y:func[1].y-func[2].y, ax:func[1].ax-func[2].ax, bx:func[1].bx-func[2].bx},
+							];
+			var tempBX = newFunc[0].bx;
+			for (var p in newFunc[0]) {
+				newFunc[0][p]*=newFunc[1].bx;
+			}
+			for (var p in newFunc[1]) {
+				newFunc[1][p]*=tempBX;
+			}
+			var nextFunc = {y:newFunc[0].y-newFunc[1].y, ax:newFunc[0].ax-newFunc[1].ax};
+			a = nextFunc.y/nextFunc.ax;
+			c = y0-a*x0*x0-b*x0;
+			return {a:a, b:b, c:c};
+		}
+		function getSlopePolynomial(xVals, yVals) {
+			var result = [];
+			var functions = [];
+			for (var a = 0; a < xVals.length; a++) {
+				functions.push([]);
+			}
+			for (var p = 0; p < xVals.length; p++) {
+				var func = {};
+				for (var a = 0; a < xVals.length; a++) {
+					func["x" + a] = (exp(xVals[p], a));
+				}
+				func["y"] = yVals[p];
+				functions[0].push(func);
+			}
+			for (var f = 1; f < functions.length; f++) {
+				for (var g = 0; g < functions[f-1].length-1; g++) {
+					var func = {};
+					for (var i in functions[f-1][g]) {
+						var mult1 = functions[f-1][g+1]["x" + (f-1)];
+						var mult2 = functions[f-1][g]["x" + (f-1)];
+						func[i] = mult1*functions[f-1][g][i]-functions[f-1][g+1][i]*mult2;
+					}
+					functions[f].push(func);
+				}
+			}
+			result[functions.length-1] = functions[functions.length-1][0].y/functions[functions.length-1][0]["x"+(functions.length-1)];
+			for (var f = functions.length-2; f >= 0; f--) {
+				var next = functions[f][0].y;
+				for (var n in result) {
+					next -= functions[f][0]["x"+n]*result[n];
+				}
+				result[f] = next/functions[f][0]["x"+f];
+			}
+			return {result:result, functions:functions};
+		}
+		function getIntercept(obj1, obj2) {
+			var x;
+			var y;
+			if (obj1.m === obj2.m && !isNaN(obj1.m) && !isNaN(obj2.m)) {
+				if (obj1.b === obj2.b) {
+					return "All real numbers";
+				} else {
+					return null;
+				}
+			}
+			if (obj1.x === undefined && obj2.x === undefined) {
+				x = (obj2.b-obj1.b)/(obj1.m-obj2.m);
+				y = (obj1.b*obj2.m-obj2.b*obj1.m)/(obj2.m-obj1.m);
+				if (y === -0) {
+					y = 0;
+				}
+			} else if (obj1.x !== undefined ^ obj2.x !== undefined) {
+				var m;
+				var b;
+				if (obj1.x !== undefined) {
+					x = obj1.x;
+					m = obj2.m;
+					b = obj2.b;
+				} else {
+					x = obj2.x;
+					m = obj1.m;
+					b = obj1.b;
+				}
+				y = m*x+b;
+			} else {
+				return null;
+			}
+			return {x:x, y:y};
+		}
+
+
+		function draw() {
+			if (points !== document.getElementById("Points").value) {
+				if (document.getElementById("Points").value < 2) {
+					document.getElementById("Points").value = 2;
+				}
+				while (points >= document.getElementById("Points").value) {
+					document.getElementById("Graph1X" + points).remove();
+					document.getElementById("Graph1X" + points + "Text").remove();
+					document.getElementById("Graph1Y" + points).remove();
+					document.getElementById("Graph1Y" + points + "Text").remove();
+					document.getElementById("Graph1Equation").style.top = (parseFloat(document.getElementById("Graph1Equation").style.top) - 90) + "px";
+					document.getElementById("Graph1EquationText").style.top = (parseFloat(document.getElementById("Graph1EquationText").style.top) - 90) + "px";
+					points--;
+				}
+				for (points; points < document.getElementById("Points").value-1; points++) {
+					var temp = document.getElementById("Graph1X" + points).cloneNode(true);
+					temp.id = "Graph1X" + (points+1);
+					temp.style.top = (parseFloat(temp.style.top) + 90) + "px";
+					temp.value = Number(temp.value)+1;
+					document.body.appendChild(temp);
+
+					temp = document.getElementById("Graph1X" + points + "Text").cloneNode(true);
+					temp.id = "Graph1X" + (points+1) + "Text";
+					temp.style.top = (parseFloat(temp.style.top) + 90) + "px";
+					document.body.appendChild(temp);
+					temp.innerHTML = "X value #" + (parseInt(temp.innerHTML.substr(9))+1);
+
+					temp = document.getElementById("Graph1Y" + points).cloneNode(true);
+					temp.id = "Graph1Y" + (points+1);
+					temp.style.top = (parseFloat(temp.style.top) + 90) + "px";
+					temp.value = Number(temp.value)+1;
+					document.body.appendChild(temp);
+
+					temp = document.getElementById("Graph1Y" + points + "Text").cloneNode(true);
+					temp.id = "Graph1Y" + (points+1) + "Text";
+					temp.innerHTML = "Y value #" + (parseInt(temp.innerHTML.substr(9))+1);
+					temp.style.top = (parseFloat(temp.style.top) + 90) + "px";
+					document.body.appendChild(temp);
+
+					document.getElementById("Graph1Equation").style.top = (parseFloat(document.getElementById("Graph1Equation").style.top) + 90) + "px";
+					document.getElementById("Graph1EquationText").style.top = (parseFloat(document.getElementById("Graph1EquationText").style.top) + 90) + "px";
+				}
+			}
+			ctx.clearRect(-canvas.width, -canvas.height, canvas.width*2, canvas.height*2);
+			ctx.strokeStyle = "gray";
+			ctx.lineWidth = 3;
+			for (var x = 0; x < 32; x++) {
+				ctx.beginPath();
+				ctx.moveTo(x*canvas.width/32-canvas.width/2, -canvas.height/2);
+				ctx.lineTo(x*canvas.width/32-canvas.width/2, canvas.height/2);
+				ctx.stroke();
+			}
+			for (var y = 0; y < 32; y++) {
+				ctx.beginPath();
+				ctx.moveTo(-canvas.width/2, y*canvas.height/32-canvas.height/2);
+				ctx.lineTo(canvas.width/2, y*canvas.height/32-canvas.height/2);
+				ctx.stroke();
+			}
+
+			ctx.lineWidth = 10;
+			ctx.beginPath();
+			ctx.moveTo(0, -canvas.height/2);
+			ctx.lineTo(0, canvas.height/2);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(-canvas.width/2, 0);
+			ctx.lineTo(canvas.width/2, 0);
+			ctx.stroke();
+			var xs = [];
+			var ys = [];
+			for (var p = 0; p <= points; p++) {
+				var x = document.getElementById("Graph1X" + p).value;
+				var y = document.getElementById("Graph1Y" + p).value;
+				xs.push(Number(x));
+				ys.push(Number(y));
+			}
+			ctx.strokeStyle = "blue";
+			var slope = getSlopePolynomial(xs, ys);
+			slope = slope.result;
+			ctx.beginPath();
+			var y = 0;
+			for (var s = 0; s < slope.length; s++) {
+					y+=exp(-16,s) * -slope[s];
+				}
+			ctx.moveTo(-16*canvas.width/32, y*canvas.height/32);
+			for (var x = -16; x <= 16; x+=1/slope.length) {
+				var y = 0;
+				for (var s = 0; s < slope.length; s++) {
+					y+=exp(x,s) * -slope[s];
+				}
+				ctx.lineTo(x*canvas.width/32, y*canvas.height/32);
+			}
+			ctx.stroke();
+			for (var a = 0; a < xs.length; a++) {
+				var x = xs[a];
+				var y = ys[a];
+				ctx.fillStyle = "red";
+				ctx.strokeStyle = "blue";
+				ctx.lineWidth = 5;
+				ctx.beginPath();
+				ctx.arc(x*canvas.width/32, -y*canvas.height/32, 7, 0, Math.PI*2);
+				ctx.fill();
+				ctx.stroke();
+			}
+			var equation = "y = ";
+			var hor = true;
+			for (var s = slope.length-1; s >= 0; s--) {
+				if (Math.round(slope[s]*100)/100 !== 0) {
+					if (s!==0) {
+						hor=false;
+					}
+					if (slope[s] === -1 && s!==0) {
+						equation+="-";
+					}
+					if (slope[s] >= 0 && s !== slope.length-1) {
+						equation+="+";
+					}
+					if (Math.abs(slope[s]) !== 1 || s === 0) {
+						equation+=Math.round(slope[s]*100)/100;
+					}
+					if (s!==0) {
+						equation+="x";
+						if (s > 1) {
+							equation+=s.toString().sup();
+						}
+					}
+				}
+			}
+			if (hor) {
+				equation = "y = " + ys[0];
+			}
+
+			document.getElementById("Graph1Equation").innerHTML = equation;
+// 			if (debug) console.log(equation.length);
+// 			document.getElementById("Graph1Equation").style.height = boxHeight*Math.ceil((equation.length)/parseFloat(document.getElementById("Graph1Equation").style.width))+"px";
+
+		}
+		var d = setInterval(draw, 100);
+	</script>
+
+</html>

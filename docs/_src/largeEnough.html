@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+	<body onload="load()">
+		Sample Size: 1<input id="slider" type="range" max=200 min=1 value=200>200
+		<canvas id="canvas" style="position:absolute;left:0;top:50px;border:1px solid black"></canvas>
+		<script>
+			val = 200;
+			function load() {
+				canvas = document.getElementById("canvas");
+				ctx = canvas.getContext("2d");
+				canvas.width = width = innerWidth-2;
+				canvas.height = height = innerHeight-52;
+				slider = document.getElementById("slider");
+				draw();
+			}
+			function draw() {
+				minv = 0;
+				maxv = 200;
+				nums = [];
+				mx = 0;
+				times = 200;
+				samples = 5000;
+				for (var n = 1; n <= times; n++) {
+					getRandModel(samples,n);
+				}
+				for (var n = 1; n <= times; n++) {
+					for (var a = minv; a < maxv; a++) {
+						mx = Math.max(nums[n][a],mx);
+					}
+				}
+				ctx.strokeStyle = "black";
+				ctx.font = "30px arial";
+				ctx.fillText("Samples: " + samples, 0, 50);
+				ctx.fillText("Sample Size: 1 -> " + times, 0, 100);
+				ctx.fillText("Values: " + minv + " -> " + maxv, 0, 150);
+				ctx.fillStyle = "black";
+				frameCount = 0;
+				requestAnimationFrame(loop);
+			}
+			function getRandModel(x,n) {
+				var counts = [];
+				for (var a = 0; a < maxv; a++) {
+					counts[a] = 0;
+				}
+				for (var a = 0; a < x; a++) {
+					var rand = 0;
+					for (var b = 0; b < n; b++) {
+						rand+=Math.random()*maxv+minv;
+					}
+					rand/=n;
+					counts[Math.floor(rand)]++;
+				}
+				nums[n] = counts;
+			}
+			function drawRandModel(n) {
+				for (var a = minv; a < maxv; a++) {
+					ctx.beginPath();
+					ctx.rect((a-minv)*width/(maxv-minv),height-nums[n][a]*height/mx,width/(maxv-minv),nums[n][a]*height/mx);
+					ctx.fill();
+					ctx.stroke();
+				}
+			}
+			function loop() {
+				if (frameCount < times) {
+					frameCount++;
+					ctx.clearRect(width-350,0,350,100);
+					ctx.strokeStyle = "black";
+					ctx.strokeRect(width-350,0,350,100);
+					ctx.fillText("Sample Size = " + frameCount, width-350, 50);
+					ctx.strokeStyle = "hsl("+(frameCount/times*360)+",100%,50%)";
+					ctx.fillStyle = "black";
+					drawRandModel(frameCount);
+				} else if (val != slider.value) {
+					val = slider.value;
+					ctx.clearRect(0,0,width,height);
+					ctx.fillText("Samples: " + samples, 0, 50);
+					ctx.fillText("Sample Size: 1 -> " + times, 0, 100);
+					ctx.fillText("Values: " + minv + " -> " + maxv, 0, 150);
+					ctx.fillText("Sample Size = " + val, width-350, 50);
+					ctx.strokeStyle = "hsl("+(val/times*360)+",100%,50%)";
+					drawRandModel(val);
+				}
+				requestAnimationFrame(loop);
+			}
+		</script>
+	</body>
+</html

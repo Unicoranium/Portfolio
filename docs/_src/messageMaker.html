@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Message Maker!</title>
+	</head>
+	<body onload="load();" onresize="resize();">
+		<canvas id="MsgMaker" style="textalign: center; textbaseline: middle; background: lightblue; position: absolute; left: 0; top: 0"></canvas>
+	</body>
+
+	<script>
+		var width;
+		var height;
+		var canvas = document.getElementById('MsgMaker');
+		var ctx = canvas.getContext('2d');
+		var dragging = false;
+		var mousePressed = false;
+		var mouseX = 0;
+		var mouseY = 0;
+		var pmouseX = 0;
+		var pmouseY = 0;
+		var drag = [
+			[0, 0],
+			[1, 1],
+		];
+		var keys = [];
+		var frameCount = 0;
+		var debug = false;
+		var pnts = [];
+		var makePnts;
+		var drawFunc;
+		var particles = [];
+		var dyingParticles = [];
+		var firstChar = 32;
+		var lastChar = 127;
+		var splitMsg;
+		var characters = [];
+		var p;
+		var x = 0;
+		var y = 0;
+		var character = [];
+		var curChar = firstChar;
+		var loadingChar;
+		// 		var colors = ["crimson", "darkred", "firebrick", "maroon", "red", "springgreen", "seagreen", "mediumseagreen", "mediumspringgreen", "limegreen", "lime", "lightgreen", "green", "greenyellow", "forestgreen", "azure", "aliceblue", "floralwhite", "ghostwhite", "honeydew", "ivory", "linen", "mintcream", "snow", "white"];
+		// var colors = ['crimson', 'seagreen'];
+		var colors = ['blue', 'crimson', 'deeppink', 'orange', 'purple', 'seagreen'];
+		// 		colors.shuffle();
+		var waitTime = 200;
+		var font = 'arial';
+
+		function load() {
+			colors.shuffle();
+			resize();
+			canvas.style.background = 'lightblue';
+
+			if (localStorage.getItem('font') !== font) {
+				localStorage.setItem('font', font);
+				getCharPnts();
+			} else if (localStorage.getItem('characterPoints' + font + '33') !== null) {
+				for (var c = firstChar; c < lastChar; c++) {
+					while (ctx.measureText(String.fromCharCode(c)).width === 0) {
+						c++;
+					}
+					if (localStorage.getItem('characterPoints' + font + c) === null) {
+						c++;
+					} else {
+						var cur = localStorage.getItem('characterPoints' + font + c);
+						var str = cur.split(',');
+						for (var s = 0; s < str.length; s += 2) {
+							character.push([Number(str[s]), Number(str[s + 1])]);
+						}
+						characters[c] = character;
+						character = [];
+					}
+				}
+				drawFunc = setInterval(draw, 50);
+				MsgToPnts(window.frameElement ? '☺' : prompt('Pick a message to display', 'Hello there!'));
+			} else {
+				getCharPnts();
+			}
+			localStorage.setItem('font', font);
+
+			canvas.addEventListener(
+				'mousemove',
+				function (e) {
+					if (mousePressed && !dragging) {
+						drag[0][0] = mouseX;
+						drag[0][1] = mouseY;
+						dragging = true;
+					} else if (!mousePressed) {
+						drag[0][0] = 0;
+						drag[0][1] = 0;
+						drag[1][0] = 0;
+						drag[1][1] = 0;
+						dragging = false;
+					}
+					pmouseX = mouseX;
+					pmouseY = mouseY;
+					mouseX = e.clientX;
+					mouseY = e.clientY;
+					if (dragging) {
+					}
+				},
+				false
+			);
+			canvas.addEventListener(
+				'mousedown',
+				function (e) {
+					pmouseX = mouseX;
+					pmouseY = mouseY;
+					mouseX = e.clientX;
+					mouseY = e.clientY;
+					mousePressed = true;
+				},
+				false
+			);
+			canvas.addEventListener(
+				'mouseup',
+				function (e) {
+					pmouseX = mouseX;
+					pmouseY = mouseY;
+					mouseX = e.clientX;
+					mouseY = e.clientY;
+					mousePressed = false;
+					dragging = false;
+				},
+				false
+			);
+			window.addEventListener(
+				'keydown',
+				function (e) {
+					keys[e.keyCode] = true;
+				},
+				false
+			);
+			window.addEventListener(
+				'keyup',
+				function (e) {
+					keys[e.keyCode] = false;
+				},
+				false
+			);
+		}
+		function resize() {
+			if (innerWidth < 1000) {
+				canvas.width = 1000;
+				canvas.style.width = '100%';
+				width = canvas.width;
+			} else {
+				canvas.width = innerWidth;
+				canvas.style.width = '';
+				width = canvas.width;
+			}
+			if (innerHeight < 1000) {
+				canvas.height = 1000;
+				canvas.style.height = '100%';
+				height = canvas.height;
+			} else {
+				canvas.height = innerHeight;
+				canvas.style.height = '';
+				height = canvas.height;
+			}
+		}
+
+		function nextChar() {
+			ctx.font = Math.min(width, height) / 20 + 'px ' + font;
+			var val = Math.min(width, height) / 20;
+			var xpos = Math.ceil(ctx.measureText(String.fromCharCode(curChar)).width);
+			var ypos = Math.ceil(Math.min(width, height) / 15) + height / 2;
+			y = Math.floor(y);
+			for (x = Math.floor(width / 2); x < xpos + width / 2; x++) {
+				p = ctx.getImageData(x, y, 1, 1);
+				ctx.fillStyle = 'red';
+				var comp = Array.from(p.data);
+				comp.pop();
+				if (comp.equals([0, 0, 0])) {
+					ctx.fillStyle = 'limegreen';
+					character.push([x - width / 2, y - height / 2]);
+				}
+				ctx.globalAlpha = 0.5;
+				ctx.fillRect(x, y, 1, 1);
+			}
+			y++;
+			if (y > ypos) {
+				localStorage.setItem('characterPoints' + font + curChar, character);
+				characters[curChar] = character;
+				character = [];
+				y = height / 2;
+				do {
+					curChar++;
+				} while (ctx.measureText(String.fromCharCode(curChar)).width === 0);
+				ctx.globalAlpha = 1;
+				ctx.fillStyle = 'white';
+				ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+				ctx.fillStyle = 'black';
+				ctx.font = val + 'px ' + font;
+				ctx.fillText(String.fromCharCode(curChar), width / 2, height / 2);
+				if (curChar > lastChar) {
+					clearInterval(makePnts);
+					drawFunc = setInterval(draw, 50);
+					MsgToPnts(window.frameElement ? '☺' : prompt('Pick a message to display', 'Hello there!'));
+				}
+			}
+		}
+		function loadChar(charNum) {
+			ctx.font = Math.min(width, height) / 20 + 'px ' + font;
+			var val = Math.min(width, height) / 20;
+			var xpos = Math.ceil(ctx.measureText(String.fromCharCode(charNum)).width);
+			var ypos = Math.ceil(Math.min(width, height) / 15) + height / 2;
+			y = Math.floor(y);
+			for (x = Math.floor(width / 2); x < xpos + width / 2; x++) {
+				p = ctx.getImageData(x, y, 1, 1);
+				ctx.fillStyle = 'red';
+				var comp = Array.from(p.data);
+				comp.pop();
+				if (comp.equals([0, 0, 0])) {
+					ctx.fillStyle = 'limegreen';
+					character.push([x - width / 2, y - height / 2]);
+				}
+				ctx.globalAlpha = 0.5;
+				ctx.fillRect(x, y, 1, 1);
+			}
+			y++;
+			if (y > ypos) {
+				localStorage.setItem('characterPoints' + font + charNum, character);
+				characters[charNum] = character;
+				character = [];
+				drawFunc = setInterval(draw, 50);
+				clearInterval(loadingChar);
+			}
+		}
+
+		function getCharPnts() {
+			curChar = firstChar;
+			while (ctx.measureText(String.fromCharCode(curChar)).width === 0) {
+				curChar++;
+			}
+			x = width / 2;
+			y = height / 2;
+
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'top';
+			ctx.globalAlpha = 1;
+			ctx.fillStyle = 'rgb(255,255,255)';
+			ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+			ctx.fillStyle = 'rgb(0,0,0)';
+			ctx.font = Math.min(width, height) / 20 + 'px ' + font;
+			ctx.fillText(String.fromCharCode(curChar), width / 2, height / 2);
+
+			clearInterval(makePnts);
+			makePnts = setInterval(nextChar, 1);
+		}
+
+		Array.prototype.equals = function (array) {
+			if (!array) {
+				return false;
+			}
+			if (this.length != array.length) {
+				return false;
+			}
+
+			for (var i = 0, l = this.length; i < l; i++) {
+				if (this[i] instanceof Array && array[i] instanceof Array) {
+					if (!this[i].equals(array[i])) {
+						return false;
+					}
+				} else if (this[i] != array[i]) {
+					return false;
+				}
+			}
+			return true;
+		};
+		Array.prototype.shuffle = function () {
+			for (var i = this.length - 1; i > 0; i--) {
+				var j = Math.floor(Math.random() * (i + 1));
+				var temp = this[i];
+				this[i] = this[j];
+				this[j] = temp;
+			}
+			return this;
+		};
+
+		function dist(x1, y1, x2, y2) {
+			var x = x2 - x1;
+			var y = y2 - y1;
+			return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+		}
+		function areaTriangle(x1, y1, x2, y2, x3, y3) {
+			var a = dist(x1, y1, x2, y2);
+			var b = dist(x2, y2, x3, y3);
+			var c = dist(x3, y3, x1, y1);
+			var p = (a + b + c) / 2;
+			var ans = Math.sqrt(p * (p - a) * (p - b) * (p - c));
+			if (isNaN(ans)) {
+				ans = p;
+			}
+			return ans;
+		}
+		function inQuad(x0, y0, x1, y1, x2, y2, x3, y3, x4, y4) {
+			var a1 = areaTriangle(x0, y0, x1, y1, x2, y2);
+			var b1 = areaTriangle(x0, y0, x2, y2, x3, y3);
+			var c1 = areaTriangle(x0, y0, x3, y3, x4, y4);
+			var d1 = areaTriangle(x0, y0, x4, y4, x1, y1);
+			var x5 = (x1 + x2 + x3 + x4) / 4;
+			var y5 = (y1 + y2 + y3 + y4) / 4;
+			var a2 = areaTriangle(x5, y5, x1, y1, x2, y2);
+			var b2 = areaTriangle(x5, y5, x2, y2, x3, y3);
+			var c2 = areaTriangle(x5, y5, x3, y3, x4, y4);
+			var d2 = areaTriangle(x5, y5, x4, y4, x1, y1);
+			var e1 = a1 + b1 + c1 + d1;
+			var e2 = a2 + b2 + c2 + d2;
+			if (e1 === e2) {
+				return true;
+			} else if (Math.abs(e1 - e2) < 5) {
+				return true;
+			}
+			return false;
+		}
+		function degrees(angle) {
+			return ((angle * 180) / Math.PI) % 360;
+		}
+		function radians(angle) {
+			return (angle % 360) * (Math.PI / 180);
+		}
+		function angle(x1, y1, x2, y2) {
+			var angle = Math.atan((y2 - y1) / (x2 - x1));
+			angle = degrees(angle);
+			if (x2 < x1) {
+				angle += 180;
+			}
+			if (angle < 0) {
+				angle += 360;
+			}
+			return angle;
+		}
+		function hexToRgb(hex) {
+			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result
+				? {
+						r: parseInt(result[1], 16),
+						g: parseInt(result[2], 16),
+						b: parseInt(result[3], 16),
+				  }
+				: null;
+		}
+		function lerp(c1, c2, i) {
+			if (typeof c1 === typeof '' && c1[0] === '#') {
+				c1 = hexToRgb(c1);
+			}
+			if (typeof c2 === typeof '' && c2[0] === '#') {
+				c2 = hexToRgb(c2);
+			}
+			return 'rgb(' + parseInt((1 - i) * c1.r + i * c2.r) + ', ' + parseInt((1 - i) * c1.g + i * c2.g) + ', ' + parseInt((1 - i) * c1.b + i * c2.b) + ')';
+		}
+
+		function MsgToPnts(string) {
+			ctx.font = Math.min(width, height) / 2 + 'px ' + font;
+
+			var arr = string.split(' ');
+
+			var lastString = '';
+			var curString = arr[0];
+			splitMsg = [];
+			for (var a = 1; a <= arr.length; a++) {
+				if (arr[a] !== '\\b') {
+					lastString = curString;
+					curString = curString + ' ' + arr[a];
+					if (arr[a] === '\\n') {
+						splitMsg.push(lastString);
+						splitMsg.push('');
+						curString = arr[a + 1];
+						a++;
+					} else if (ctx.measureText(curString).width > width) {
+						splitMsg.push(lastString);
+						curString = arr[a];
+					}
+				} else {
+					lastString = curString;
+					curString = curString + ' ' + arr[a + 1];
+					a++;
+				}
+			}
+		}
+		function nextMsg(m) {
+			particles.shuffle();
+			colors.shuffle();
+			ctx.font = Math.min(width, height) / 2 + 'px ' + font;
+			var num = (m % Math.ceil(splitMsg.length / 2)) * 2;
+			var chars = 0;
+			var yOff = -(height / 2) / 20;
+			var div = 2.4;
+			if (num + 1 === splitMsg.length || splitMsg[num] === '' || splitMsg[num + 1] === '') {
+				yOff = height / 5;
+			}
+			for (var p = num; p <= num + 1; p++) {
+				if (splitMsg[p] !== undefined) {
+					var offset = (width - ctx.measureText(splitMsg[p]).width) / 2;
+					ctx.font = Math.min(width, height) / 2 + 'px ' + font;
+					if (ctx.measureText(splitMsg[p]).width > width) {
+						ctx.font = Math.min(width, height) / div + 'px ' + font;
+						offset = (width - ctx.measureText(splitMsg[p]).width) / 3;
+						ctx.font = Math.min(width, height) / 2 + 'px ' + font;
+					}
+					for (var s = 0; s < splitMsg[p].length; s++) {
+						if (characters[splitMsg[p].charCodeAt(s)] === undefined) {
+							if (localStorage.getItem('characterPoints' + font + splitMsg[p].charCodeAt(s)) !== null) {
+								var c = splitMsg[p].charCodeAt(s);
+								var cur = localStorage.getItem('characterPoints' + font + c);
+								var str = cur.split(',');
+								for (var s = 0; s < str.length; s += 2) {
+									character.push([Number(str[s]), Number(str[s + 1])]);
+								}
+								characters[c] = character;
+								character = [];
+							} else {
+								clearInterval(drawFunc);
+								ctx.textAlign = 'left';
+								ctx.textBaseline = 'top';
+								ctx.globalAlpha = 1;
+								ctx.fillStyle = 'rgb(255,255,255)';
+								ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+								ctx.fillStyle = 'rgb(0,0,0)';
+								ctx.font = Math.min(width, height) / 20 + 'px ' + font;
+								ctx.fillText(splitMsg[p][s], width / 2, height / 2);
+								y = height / 2;
+								loadingChar = setInterval(loadChar, 1, splitMsg[p].charCodeAt(s));
+							}
+						}
+						for (var c = 0; c < characters[splitMsg[p].charCodeAt(s)].length; c++) {
+							var color1 = colors[Math.floor(Math.random() * colors.length)];
+							// 							var color2 = colors[Math.floor(Math.random()*colors.length)];
+							var color2 = colors[(m + p) % colors.length];
+							var alpha1 = Math.random();
+							if (m !== 0) {
+								alpha1 = 0;
+							}
+							if (particles[chars] === undefined) {
+								if (ctx.measureText(splitMsg[p]).width > width) {
+									particles.push(
+										new Particle(
+											Math.random() * width,
+											Math.random() * height,
+											characters[splitMsg[p].charCodeAt(s)][c][0] * 7 + offset,
+											characters[splitMsg[p].charCodeAt(s)][c][1] * 10 + yOff,
+											color1,
+											color2,
+											alpha1,
+											Math.random(),
+											Math.random() * 10 + 3,
+											Math.random() * 10 + 3
+										)
+									);
+								} else {
+									particles.push(
+										new Particle(
+											Math.random() * width,
+											Math.random() * height,
+											characters[splitMsg[p].charCodeAt(s)][c][0] * 10 + offset,
+											characters[splitMsg[p].charCodeAt(s)][c][1] * 10 + yOff,
+											color1,
+											color2,
+											alpha1,
+											Math.random(),
+											Math.random() * 10 + 3,
+											Math.random() * 10 + 3
+										)
+									);
+								}
+							} else {
+								particles[chars].startX = particles[chars].endX;
+								particles[chars].startY = particles[chars].endY;
+								particles[chars].startColor = particles[chars].endColor;
+								particles[chars].startWidth = particles[chars].endWidth;
+								particles[chars].startAlpha = particles[chars].endAlpha;
+
+								particles[chars].lerpVal = 0;
+
+								ctx.fillStyle = color2;
+								color2 = ctx.fillStyle;
+
+								if (ctx.measureText(splitMsg[p]).width > width) {
+									particles[chars].endX = characters[splitMsg[p].charCodeAt(s)][c][0] * 7 + offset;
+								} else {
+									particles[chars].endX = characters[splitMsg[p].charCodeAt(s)][c][0] * 10 + offset;
+								}
+								particles[chars].endY = characters[splitMsg[p].charCodeAt(s)][c][1] * 10 + yOff;
+								particles[chars].endColor = color2;
+								particles[chars].endWidth = Math.random() * 10 + 3;
+								particles[chars].endAlpha = Math.random();
+							}
+							chars++;
+						}
+						if (ctx.measureText(splitMsg[p]).width > width) {
+							ctx.font = Math.min(width, height) / div + 'px ' + font;
+						}
+						offset += ctx.measureText(splitMsg[p][s]).width;
+					}
+					yOff += height / 2;
+				}
+			}
+			while (chars < particles.length) {
+				dyingParticles.push(particles.pop());
+				dyingParticles[dyingParticles.length - 1].endAlpha = 0;
+				dyingParticles[dyingParticles.length - 1].alphaChange = 10;
+			}
+		}
+
+		function Particle(x1, y1, x2, y2, c1, c2, a1, a2, w1, w2) {
+			ctx.fillStyle = c1;
+			c1 = ctx.fillStyle;
+			ctx.fillStyle = c2;
+			c2 = ctx.fillStyle;
+
+			this.startX = x1;
+			this.startY = y1;
+			this.startColor = c1;
+			this.startWidth = w1;
+			this.startAlpha = a1;
+
+			this.endX = x2;
+			this.endY = y2;
+			this.endColor = c2;
+			this.endWidth = w2;
+			this.endAlpha = a2;
+
+			this.x = this.startX;
+			this.y = this.startY;
+			this.width = this.startWidth;
+			this.alpha = this.startAlpha;
+			this.lerpVal = 0;
+			this.alphaChange = 30;
+
+			this.display = function () {
+				ctx.beginPath();
+				ctx.globalAlpha = this.alpha;
+				ctx.fillStyle = lerp(this.startColor, this.endColor, this.lerpVal);
+				ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2);
+				ctx.fill();
+
+				var lChange = 1 - this.lerpVal;
+				this.lerpVal += lChange / 30;
+				var xChange = this.endX - this.x;
+				this.x += xChange / 30;
+				var yChange = this.endY - this.y;
+				this.y += yChange / 30;
+				var wChange = this.endWidth - this.width;
+				this.width += wChange / 30;
+				var aChange = this.endAlpha - this.alpha;
+				this.alpha += aChange / this.alphaChange;
+			};
+		}
+
+		function displayParticles() {
+			for (var p = 0; p < particles.length; p++) {
+				particles[p].display();
+			}
+		}
+		function displayDyingParticles() {
+			var remove = [];
+			for (var p = 0; p < dyingParticles.length; p++) {
+				dyingParticles[p].display();
+				if (dyingParticles[p].alpha <= 0.001) {
+					remove.push(p);
+				}
+			}
+			for (var r = 0; r < remove.length; r++) {
+				dyingParticles.splice(remove[r], 1);
+			}
+		}
+
+		function draw() {
+			ctx.resetTransform();
+			ctx.font = '30px' + font;
+			ctx.globalAlpha = 1;
+			ctx.fillStyle = canvas.style.background;
+			ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+			ctx.strokeStyle = 'white';
+			ctx.fillStyle = 'green';
+			// 			ctx.shadowBlur = 1;
+			// 			ctx.shadowOffsetY = 1;
+			// 			ctx.shadowOffsetX = 1;
+			// 			ctx.shadowColor = "black";
+
+			if (frameCount % waitTime === 0) {
+				nextMsg((frameCount - (frameCount % waitTime)) / waitTime);
+			}
+
+			displayParticles();
+			displayDyingParticles();
+
+			frameCount++;
+		}
+	</script>
+</html>

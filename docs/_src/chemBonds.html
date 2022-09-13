@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Chemical Bonds</title>
+	</head>
+	<body onload="onload()">
+		<style>
+			p {
+				text-align: center;
+			}
+		</style>
+		<select id="pos"></select>
+		<select id="neg"></select>
+		<button id="sub" onclick="go()">Go!</button>
+		<br />
+		<div id="output" style="border: 2px solid black; width: 100%; height: 100%"><p></p></div>
+		<script>
+			var prefix = [, 'Mono', 'Di', 'Tri', 'Tetra', 'Penta', 'Hexa', 'Septa', 'Octa', 'Nona', 'Deca'];
+			var molecules = {
+				H: {
+					Charge: '1+',
+					Name: 'Hydrogen',
+					MolecularEnding: 'Hydride',
+				},
+				Li: {
+					Charge: '1+',
+					Name: 'Lithium',
+					MolecularEnding: 'Lithium',
+				},
+				Be: {
+					Charge: '2+',
+					Name: 'Beryllium',
+					MolecularEnding: 'Beryllium',
+				},
+				B: {
+					Charge: '3+',
+					Name: 'Boron',
+					MolecularEnding: 'Boride',
+				},
+				'C(-)': {
+					Charge: '4-',
+					Name: 'Carbon',
+					MolecularEnding: 'Carbide',
+				},
+				'C(+)': {
+					Charge: '4+',
+					Name: 'Carbon',
+					MolecularEnding: 'Carbide',
+				},
+				N: {
+					Charge: '3-',
+					Name: 'Nitrogen',
+					MolecularEnding: 'Nitride',
+				},
+				O: {
+					Charge: '2-',
+					Name: 'Oxygen',
+					MolecularEnding: 'Oxide',
+				},
+				F: {
+					Charge: '1-',
+					Name: 'Flourine',
+					MolecularEnding: 'Flouride',
+				},
+				Na: {
+					Charge: '1+',
+					Name: 'Sodium',
+					MolecularEnding: 'Sodium',
+				},
+				Mg: {
+					Charge: '2+',
+					Name: 'Magnesium',
+					MolecularEnding: 'Magnesium',
+				},
+				Al: {
+					Charge: '3+',
+					Name: 'Aluminum',
+					MolecularEnding: 'Aluminum',
+				},
+				Si: {
+					Charge: '4+',
+					Name: 'Silicon',
+					MolecularEnding: 'Silicide',
+				},
+				P: {
+					Charge: '3-',
+					Name: 'Phosphorus',
+					MolecularEnding: 'Phosphide',
+				},
+				P: {
+					Charge: '3+',
+					Name: 'Phosphorus',
+					MolecularEnding: 'Phosphide',
+				},
+				P: {
+					Charge: '4+',
+					Name: 'Phosphorus',
+					MolecularEnding: 'Phosphide',
+				},
+				P: {
+					Charge: '5+',
+					Name: 'Phosphorus',
+					MolecularEnding: 'Phosphide',
+				},
+				S: {
+					Charge: '2-',
+					Name: 'Sulfur',
+					MolecularEnding: 'Sulfide',
+				},
+				Cl: {
+					Charge: '1-',
+					Name: 'Chlorine',
+					MolecularEnding: 'Chloride',
+				},
+				K: {
+					Charge: '1+',
+					Name: 'Potassium',
+					MolecularEnding: 'Potassium',
+				},
+				Ca: {
+					Charge: '2+',
+					Name: 'Calcium',
+					MolecularEnding: 'Calcium',
+				},
+				Sc: {
+					Charge: '3+',
+					Name: 'Scandium',
+					MolecularEnding: 'Scandium',
+				},
+				'Ti(III)': {
+					Charge: '3+',
+					Name: 'Titanium (III)',
+					MolecularEnding: 'Titanium (III)',
+				},
+				'Ti(IV)': {
+					Charge: '4+',
+					Name: 'Titanium (IV)',
+					MolecularEnding: 'Titanium (IV)',
+				},
+				'V(III)': {
+					Charge: '3+',
+					Name: 'Vanadium (III)',
+					MolecularEnding: 'Vanadium (III)',
+				},
+				'V(V)': {
+					Charge: '5+',
+					Name: 'Vanadium (V)',
+					MolecularEnding: 'Vanadium (V)',
+				},
+				'Cr(II)': {
+					Charge: '2+',
+					Name: 'Chromium (II)',
+					MolecularEnding: 'Chromium (II)',
+				},
+				'Cr(III)': {
+					Charge: '3+',
+					Name: 'Chromium (III)',
+					MolecularEnding: 'Chromium (III)',
+				},
+				'Mn(II)': {
+					Charge: '2+',
+					Name: 'Manganese (II)',
+					MolecularEnding: 'Manganese (II)',
+				},
+				'Mn(IV)': {
+					Charge: '4+',
+					Name: 'Manganese (IV)',
+					MolecularEnding: 'Manganese (IV)',
+				},
+				'Fe(II)': {
+					Charge: '2+',
+					Name: 'Iron (II)',
+					MolecularEnding: 'Iron (II)',
+				},
+				'Fe(III)': {
+					Charge: '3+',
+					Name: 'Iron (III)',
+					MolecularEnding: 'Iron (III)',
+				},
+				'Co(II)': {
+					Charge: '2+',
+					Name: 'Cobalt (II)',
+					MolecularEnding: 'Cobalt (II)',
+				},
+				'Co(III)': {
+					Charge: '3+',
+					Name: 'Cobalt (III)',
+					MolecularEnding: 'Cobalt (III)',
+				},
+				'Ni(II)': {
+					Charge: '2+',
+					Name: 'Nickel (II)',
+					MolecularEnding: 'Nickel (II)',
+				},
+				'Ni(III)': {
+					Charge: '3+',
+					Name: 'Nickel (III)',
+					MolecularEnding: 'Nickel (III)',
+				},
+				'Cu(I)': {
+					Charge: '1+',
+					Name: 'Copper (I)',
+					MolecularEnding: 'Copper (I)',
+				},
+				'Cu(II)': {
+					Charge: '2+',
+					Name: 'Copper (I)',
+					MolecularEnding: 'Copper (I)',
+				},
+				Zn: {
+					Charge: '2+',
+					Name: 'Zinc',
+					MolecularEnding: 'Zinc (II)',
+				},
+				Ga: {
+					Charge: '3+',
+					Name: 'Gallium',
+					MolecularEnding: 'Gallium',
+				},
+				Ge: {
+					Charge: '4+',
+					Name: 'Germanium',
+					MolecularEnding: 'Germanium',
+				},
+				As: {
+					Charge: '3-',
+					Name: 'Arsenic',
+					MolecularEnding: 'Arsenide',
+				},
+				Se: {
+					Charge: '2-',
+					Name: 'Selenium',
+					MolecularEnding: 'Selenide',
+				},
+				Br: {
+					Charge: '1-',
+					Name: 'Bromine',
+					MolecularEnding: 'Bromide',
+				},
+				OH: {
+					Charge: '1-',
+					Name: 'Hydroxide',
+					MolecularEnding: 'Hydroxide',
+				},
+				'PO₃': {
+					Charge: '3-',
+					Name: 'Phosphite',
+					MolecularEnding: 'Phosphite',
+				},
+				'PO₄': {
+					Charge: '3-',
+					Name: 'Phosphate',
+					MolecularEnding: 'Phosphate',
+				},
+				ClO: {
+					Charge: '1-',
+					Name: 'Hypochlorite',
+					MolecularEnding: 'Hypochlorite',
+				},
+				'ClO₂': {
+					Charge: '1-',
+					Name: 'Chlorite',
+					MolecularEnding: 'Chlorite',
+				},
+				'ClO₃': {
+					Charge: '1-',
+					Name: 'Chlorate',
+					MolecularEnding: 'Chlorate',
+				},
+				'ClO₄': {
+					Charge: '1-',
+					Name: 'Perchlorate',
+					MolecularEnding: 'Perchlorate',
+				},
+				'NO₂': {
+					Charge: '1-',
+					Name: 'Nitrite',
+					MolecularEnding: 'Nitrite',
+				},
+				'NO₃': {
+					Charge: '1-',
+					Name: 'Nitrate',
+					MolecularEnding: 'Nitrate',
+				},
+				'SO₃': {
+					Charge: '2-',
+					Name: 'Sulfite',
+					MolecularEnding: 'Sulfite',
+				},
+				'SO₄': {
+					Charge: '2-',
+					Name: 'Sulfate',
+					MolecularEnding: 'Sulfate',
+				},
+				'NH₄': {
+					Charge: '1+',
+					Name: 'Ammonium',
+					MolecularEnding: 'Ammonium',
+				},
+				'H₂O': {
+					Charge: '0-',
+					Name: 'Dihydrogen Monoxide',
+					MolecularEnding: 'Hydrate',
+				},
+			};
+			var transitions = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd'];
+			var pos = document.getElementById('pos');
+			var neg = document.getElementById('neg');
+			var out = document.getElementById('output');
+			var bondTypes = [
+				"<span style='color:green'>Ionic</span>",
+				"<span style='color:red'>Covalent</span>",
+				'Transition</span>',
+				"<span style='color:blue'>Acid</span>",
+				"<span style='color:orange'>Base</span>",
+				"<span style='color:hotpink'>Hydrate</span>",
+			];
+			function onload() {
+				for (var m in molecules) {
+					opt = document.createElement('option');
+					opt.innerHTML = m + ' - ' + molecules[m].Name + ' - ' + molecules[m].Charge;
+					opt.value = m;
+					pos.appendChild(opt);
+					opt = document.createElement('option');
+					opt.innerHTML = m + ' - ' + molecules[m].Name + ' - ' + molecules[m].Charge;
+					opt.value = m;
+					neg.appendChild(opt);
+				}
+			}
+			function reduce(numerator, denominator) {
+				var gcd = function gcd(a, b) {
+					return b ? gcd(b, a % b) : a;
+				};
+				gcd = gcd(numerator, denominator);
+				return [numerator / gcd, denominator / gcd];
+			}
+			function subNums(str) {
+				var newStr = '';
+
+				for (var i = 0; i < str.length; i++) {
+					//  Get the code of the current character
+					var code = str.charCodeAt(i);
+					if (code >= 48 && code <= 57) {
+						//  If it's between "0" and "9", offset the code ...
+						newStr += String.fromCharCode(code + 8272);
+					} else {
+						//   ... otherwise keep the character
+						newStr += str[i];
+					}
+				}
+
+				return newStr;
+			}
+			function supNums(str) {
+				var newStr = '';
+
+				for (var i = 0; i < str.length; i++) {
+					//  Get the code of the current character
+					var code = str.charCodeAt(i);
+					if (code >= 48 && code <= 57) {
+						//  If it's between "0" and "9", offset the code ...
+						newStr += String.fromCharCode(code + 8272);
+					} else {
+						//   ... otherwise keep the character
+						newStr += str[i];
+					}
+				}
+
+				return newStr;
+			}
+			function go() {
+				while (out.firstChild) {
+					out.removeChild(out.firstChild);
+				}
+				var symbols = [pos.value, neg.value];
+				var names = [molecules[symbols[0]].Name, molecules[symbols[1]].Name];
+				var ending = [molecules[symbols[0]].MolecularEnding, molecules[symbols[1]].MolecularEnding];
+				var charges = [molecules[symbols[0]].Charge, molecules[symbols[1]].Charge];
+				var number = [parseInt(charges[0]), parseInt(charges[1])];
+				var pn = [charges[0].slice(-1) == '+', charges[1].slice(-1) == '+'];
+				if (pn[0] && pn[1] && symbols.indexOf('H') > -1) {
+					pn[symbols.indexOf('H')] = false;
+					charges[symbols.indexOf('H')] = '1-';
+				}
+				var type = [false, false, false, false, false, false];
+				if (symbols[0] == symbols[1]) {
+					alert('This creates a molecule, not a compound, please reselect.');
+					return;
+				}
+				if (pn[0] ? !pn[1] : pn[1]) {
+					var count = 0;
+					for (var a = 0; a < symbols[0].split('(')[0].length; a++) {
+						if (symbols[0][a].toLowerCase() !== symbols[0][a]) {
+							count++;
+						}
+					}
+					for (var a = 0; a < symbols[1].split('(')[0].length; a++) {
+						if (symbols[1][a].toLowerCase() !== symbols[1][a]) {
+							count++;
+						}
+					}
+					if (count == 2) type[0] = true;
+				}
+				if (
+					!(transitions.indexOf(symbols[0].split('(')[0]) > -1 || transitions.indexOf(symbols[1].split('(')[0]) > -1) && (!pn[0] || symbols[0] == 'H')
+						? !(!pn[1] || symbols[1] == 'H')
+						: !pn[1] || symbols[1] == 'H'
+				) {
+					type[1] = true;
+				}
+				if (transitions.indexOf(symbols[0].split('(')[0]) > -1 || transitions.indexOf(symbols[1].split('(')[0]) > -1) {
+					type[2] = true;
+				}
+				if (symbols.indexOf('H') > -1) {
+					var ind = symbols.indexOf('H');
+					if (!pn[1 - ind]) {
+						type[3] = true;
+					}
+				}
+				if (symbols.indexOf('OH') > -1 || (symbols.indexOf('H') > -1 && symbols.indexOf('O') > -1)) {
+					type[4] = true;
+				}
+				if (symbols.indexOf('H₂O') > -1) {
+					type[5] = true;
+					if (!pn[1 - symbols.indexOf('H₂O')]) {
+						pn[symbols.indexOf('H₂O')] = true;
+					}
+				}
+				if (type.indexOf(true) == -1 || !(type.lastIndexOf(true) != type.indexOf(true) || type.indexOf(true) != 2)) {
+					alert('Unable to find a bond for these two molecules. Please pick different molecules and try again');
+					return;
+				}
+				console.log(type);
+				var bonds = '';
+				for (var t = 0; t < type.length; t++) {
+					if (type[t]) {
+						bonds += bondTypes[t] + ', ';
+					}
+				}
+				out.appendChild(document.createElement('p'));
+				out.lastChild.innerHTML = 'These molecules demonstrate the following bonds:<br>' + bonds.trim().slice(0, -1);
+				console.log(bonds);
+				var chr = [];
+				var atoms = [];
+				console.log(symbols, names, ending, charges, number, pn, type);
+				// 				if (type[0] || type[1]) {
+				chr = reduce(...number.reverse());
+				chr[0] = Math.max(1, chr[0]);
+				chr[1] = Math.max(1, chr[1]);
+				bonded =
+					'(' +
+					symbols[pn.indexOf(true)].split('(')[0] +
+					')' +
+					(chr[pn.indexOf(true)] === 1 ? '' : chr[pn.indexOf(true)].toString().sub()) +
+					'(' +
+					symbols[1 - pn.indexOf(true)].split('(')[0] +
+					')' +
+					(chr[1 - pn.indexOf(true)] === 1 ? '' : chr[1 - pn.indexOf(true)].toString().sub());
+				atoms = [
+					symbols[pn.indexOf(true)].split('(')[0] + (chr[pn.indexOf(true)] === 1 ? '' : chr[pn.indexOf(true)]),
+					symbols[1 - pn.indexOf(true)].split('(')[0] + (chr[1 - pn.indexOf(true)] === 1 ? '' : chr[1 - pn.indexOf(true)]),
+				];
+				console.log(bonded);
+				// 				}
+				var name = [];
+				if (type[0]) {
+					name.push("<span style='color:green'>" + names[pn.indexOf(true)] + ' ' + ending[pn.indexOf(false)].toLowerCase() + '</span>');
+				}
+				if (type[1]) {
+					if (symbols[pn.indexOf(false)] === 'O' && [1, 4, 5, 6, 7, 8, 9, 10].indexOf(chr[pn.indexOf(false)]) > -1) {
+						name.push(
+							"<span style='color:red'>" +
+								(chr[pn.indexOf(true)] > 1 ? prefix[chr[pn.indexOf(true)]] + names[pn.indexOf(true)].toLowerCase() : names[pn.indexOf(true)]) +
+								' ' +
+								prefix[chr[pn.indexOf(false)]].slice(0, -1) +
+								ending[pn.indexOf(false)].toLowerCase() +
+								'</span>'
+						);
+					} else {
+						console.log(pn);
+						name.push(
+							"<span style='color:red'>" +
+								(chr[pn.indexOf(true)] > 1 ? prefix[chr[pn.indexOf(true)]] + names[pn.indexOf(true)].toLowerCase() : names[pn.indexOf(true)]) +
+								' ' +
+								prefix[chr[pn.indexOf(false)]] +
+								ending[pn.indexOf(false)].toLowerCase() +
+								'</span>'
+						);
+					}
+				}
+				if (type[3]) {
+					switch (ending[1 - symbols.indexOf('H')].slice(-3)) {
+						case 'ide':
+							name.push(
+								"<span style='color:blue'>Hydro" +
+									(symbols[1 - symbols.indexOf('H')] == 'O' ? ending[1 - symbols.indexOf('H')].slice(1) : ending[1 - symbols.indexOf('H')]).slice(0, -3).toLowerCase() +
+									'ic acid</span>'
+							);
+							break;
+						case 'ate':
+							name.push("<span style='color:blue'>" + ending[1 - symbols.indexOf('H')].slice(0, -3) + 'ic acid</span>');
+							break;
+						case 'ite':
+							name.push("<span style='color:blue'>" + ending[1 - symbols.indexOf('H')].slice(0, -3) + 'ous acid</span>');
+							break;
+					}
+				}
+				if (type[4]) {
+					if (symbols.indexOf('OH') > -1) {
+						name.push("<span style='color:orange'>" + names[1 - symbols.indexOf('OH')] + ' Hydroxide</span>');
+					}
+				}
+				if (type[5]) {
+					name.push("<span style='color:hotpink'>" + names[1 - symbols.indexOf('H₂O')] + ' ' + ending[symbols.indexOf('H₂O')] + '</span>');
+				}
+				out.appendChild(document.createElement('p'));
+				out.lastChild.innerHTML = 'Name(s): ' + name.join(', ');
+				out.appendChild(document.createElement('p'));
+				out.lastChild.innerHTML = 'Fomula: ' + bonded;
+				console.log(name);
+			}
+		</script>
+	</body>
+</html>

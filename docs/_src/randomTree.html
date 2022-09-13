@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<body onload="load()" onresize="resize()">
+		<canvas id="canvas"></canvas>
+		<script>
+			var canvas,
+				ctx,
+				width,
+				height,
+				branch = [],
+				add = [];
+			function load() {
+				canvas = document.getElementById('canvas');
+				ctx = canvas.getContext('2d');
+				canvas.width = width = innerWidth;
+				canvas.height = height = innerHeight;
+				canvas.style.background = 'rgb(20,20,50)';
+				canvas.style.position = 'absolute';
+				canvas.style.top = 0;
+				canvas.style.left = 0;
+				branch.push({ x: width / 2, y: (height * 9) / 10, a: (Math.PI * 3) / 2, l: window.frameElement ? 150 : 250, life: 0 });
+				draw();
+			}
+			function resize() {
+				canvas.width = width = innerWidth;
+				canvas.height = height = innerHeight;
+			}
+			function draw() {
+				for (var b = 0; b < branch.length; b++) {
+					getBranch(branch[b]);
+				}
+				branch.push(add.shift());
+				requestAnimationFrame(draw);
+			}
+			function getBranch(a) {
+				ctx.strokeStyle = 'white';
+				if (a) {
+					ctx.beginPath();
+					ctx.moveTo(a.x, a.y);
+					ctx.lineTo(a.x + Math.cos(a.a) * a.l, a.y + Math.sin(a.a) * a.l);
+					ctx.lineWidth = a.l / 10;
+					ctx.stroke();
+					if (a.l > 10 && a.life == 0) {
+						var r = Math.random() * 3;
+						for (var c = 0; c < r; c++) {
+							add.push({ x: a.x + Math.cos(a.a) * a.l, y: a.y + Math.sin(a.a) * a.l, a: a.a + (Math.random() * Math.PI) / 1.5 - Math.PI / 3, l: (a.l * 2) / 3, life: 0 });
+						}
+					}
+					a.life++;
+				}
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+---
+layout: program
+title: Polynomial Graphs
+desc: A program I made all the way back in middle school algebra while learning about polynomials.
+type: html
+tags:
+    - calculation
+    - math
+    - school
+    - simple
+---
+
+An old file from middle school when I was first learning to program.
+
+I decided to learn something extra outside of class. For this program I calculated a polynomial equation of degree n from n+1 points.

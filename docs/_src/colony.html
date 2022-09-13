@@ -1,0 +1,407 @@
+<!DOCTYPE HTML>
+</html>
+	<head>
+		<title>Colony</title>
+	</head>
+
+	<body onload="onLoad()">
+		<canvas id="canvas" style="border:5px solid gray;position:absolute;left:0;top:0;background:black">IT'S BROKEN</canvas>
+		<script>
+			"use strict";
+			var canvas, ctx, width, height;
+			var players = [];
+			var frameCount = 0;
+			var totalColonies = 0;
+			var mouseX = 0, mouseY = 0;
+			var difficulty = 0;
+			var pressed = [];
+			var availableColors = "aqua crimson darkorange darkorchid deeppink fuchsia gold indigo lime mediumvioletred royalblue tomato".split(" ");
+			Object.prototype.distFromObjects = function(object, min) {
+				for (var o = 0; o < object.length; o++) {
+					for (var c = 0; c < object[o].colonies.length; c++) {
+						var d = dist(object[o].colonies[c].position, this.position);
+						if (d < min) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			Object.prototype.distFromObject = function(object, min) {
+				var d = dist(object.position, this.position);
+				if (d < min) {
+					return true;
+				}
+				return false;
+			}
+			Object.prototype.clone = function() {
+				var res = {};
+				if (this.constructor.toString().indexOf("Array") > -1) {
+					res = [];
+				}
+				for (var a in this) {
+					switch (typeof this[a]) {
+						case "object":
+							res[a] = this[a].clone();
+							break;
+						default:
+							res[a] = this[a];
+					}
+				}
+				return res;
+			}
+			function onLoad() {
+				switch (window.frameElement ? "E": prompt("Enter 'E', 'M', or 'H' for easy, medium, or hard respectively", "E")) {
+					case "E":
+						difficulty = 1;
+						break;
+					case "M":
+						difficulty = 2;
+						break;
+					case "H":
+						difficulty = 3;
+						break;
+				}
+				canvas = document.getElementById("canvas");
+				ctx = canvas.getContext("2d");
+				canvas.width = width = window.innerWidth-10;
+				canvas.height = height = window.innerHeight-10;
+
+				canvas.addEventListener("mousedown", function(e){
+					if (players[0].canUpgrade>=1) {
+						ctx.beginPath();
+						ctx.rect(width*1/4-(50/3), 80, 100/3, 100/3);
+						if (ctx.isPointInPath(mouseX, mouseY)) {
+							players[0].stats[0]++;
+							players[0].canUpgrade--;
+						} else {
+							ctx.beginPath();
+							ctx.rect(width*2/4-(50/3), 80, 100/3, 100/3);
+							if (ctx.isPointInPath(mouseX, mouseY)) {
+								players[0].stats[1]++;
+								for (var c in players[0].colonies) {
+									players[0].colonies[c].population+=50;
+								}
+								players[0].canUpgrade--;
+							} else {
+								ctx.beginPath();
+								ctx.rect(width*3/4-(50/3), 80, 100/3, 100/3);
+								if (ctx.isPointInPath(mouseX, mouseY)) {
+									players[0].stats[2]++;
+									players[0].canUpgrade--;
+								} else {
+									players[0].move(mouseX, mouseY);
+									pressed.push([mouseX, mouseY, 0]);
+								}
+							}
+						}
+					} else {
+						players[0].move(mouseX, mouseY);
+						pressed.push([mouseX, mouseY, 0]);
+					}
+				});
+				canvas.addEventListener("mousemove", function(e){
+					mouseX = e.x;
+					mouseY = e.y;
+				});
+
+				for (var p = 0; p < 6; p++) {
+					players[p] = new Player();
+					players[p].id = p;
+					players[p].addTroop();
+					if (p !== 0) {
+						players[p].stats = [difficulty-1, difficulty-1, difficulty-1];
+					}
+				}
+				players[players.length-1].isNeutral = true;
+				players[players.length-1].color = "gray";
+				while (totalColonies < 15) {
+					players[players.length-1].colonies.push(new Colony());
+				}
+
+				draw();
+			}
+			function map(e,t,n,r,i){
+				return r+(i-r)*((e-t)/(n-t));
+			}
+			function dist(pnt1, pnt2) {
+				return Math.sqrt(((pnt1.x-pnt2.x)*(pnt1.x-pnt2.x))+((pnt1.y-pnt2.y)*(pnt1.y-pnt2.y)));
+			}
+			function angle(pnt1, pnt2) {
+				var ang = Math.atan2((pnt2.y-pnt1.y),(pnt2.x-pnt1.x));
+				while (ang <= 0) {
+					ang+=Math.PI*2;
+				}
+				ang %= Math.PI*2;
+				return ang;
+			}
+			function constrain(e,t,n) {
+				return (e>n)?n:(e<t)?t:e;
+			}
+			function displayPlayers(players) {
+				for (var p = 0; p < players.length; p++) {
+					players[p].display();
+				}
+			}
+			function closest(obj, att, exc, currPos) {
+				var close = [0, 0];
+				for (var o = 0; o < obj.length; o++) {
+					for (var a = 0; a < obj[o][att].length; a++) {
+						if (o !== exc && dist(obj[o][att][a].position, currPos) < dist(obj[close[0]][att][close[1]].position, currPos)) {
+							close[0] = o;
+							close[1] = a;
+						}
+					}
+				}
+				return obj[close[0]][att][close[1]];
+			}
+			function computerAI(computers) {
+				for (var p = 0; p < computers.length; p++) {
+					var sortByPop = computers[p].colonies.clone().sort(function(a,b){return a.population-b.population;});
+					if (computers[p].colonies.length === 1 && computers[p].troops.length < 3*(4-difficulty)) {
+						computers[p].move(computers[p].colonies[0].position.x, computers[p].colonies[0].position.y);
+					} else if (sortByPop[0] && sortByPop[0].population < (computers[p].stats[1]*50+1000)/(4-difficulty)) {
+						computers[p].move(sortByPop[0].position.x, sortByPop[0].position.y);
+					} else if (computers[p].troops.length > 3*(4-difficulty)) {
+						var close = closest(players, "colonies", p+1, computers[p].center).position;
+						computers[p].move(close.x, close.y);
+					}
+					if (computers[p].canUpgrade >= (2/difficulty)) {
+						var stats = computers[p].stats.clone().sort(function(a,b){return a-b;});
+						computers[p].stats[computers[p].stats.indexOf(stats[0])]++;
+						computers[p].canUpgrade-=(3-difficulty);
+					}
+				}
+			}
+			function displayStats(player) {
+				ctx.font = "30px menlo";
+				ctx.lineWidth = 2;
+				ctx.strokeStyle = player.color;
+				ctx.globalAlpha = 0.1;
+				ctx.strokeText(player.stats[0]+1, width*1/4+0, 35);
+				ctx.strokeText("Speed", width*1/4-50, 35);
+				ctx.strokeText(player.stats[1]+1, width*2/4+0, 35);
+				ctx.strokeText("Health", width*2/4-50, 35);
+				ctx.strokeText(player.stats[2]+1, width*3/4+0, 35);
+				ctx.strokeText("Attack", width*3/4-50, 35);
+				if (player.canUpgrade>=1) {
+					ctx.strokeRect(width*1/4-(50/3), 80, 100/3, 100/3);
+					ctx.strokeText("+", width*1/4, 95);
+					ctx.strokeRect(width*2/4-(50/3), 80, 100/3, 100/3);
+					ctx.strokeText("+", width*2/4, 95);
+					ctx.strokeRect(width*3/4-(50/3), 80, 100/3, 100/3);
+					ctx.strokeText("+", width*3/4, 95);
+				}
+				ctx.strokeStyle = player.color;
+				ctx.fillStyle = player.color;
+				ctx.beginPath();
+				ctx.rect(0, 0, width*(player.canUpgrade%1), 10);
+				ctx.stroke();
+				ctx.stroke();
+				ctx.fill();
+			}
+
+			function Colony() {
+				var tries = 0;
+				do {
+					this.position = {x:map(Math.random(), 0, 1, 50, width-50), y:map(Math.random(), 0, 1, 100, height-50)};
+				} while (this.distFromObjects(players, 100) && tries < 50);
+				this.population = 1000;
+				this.id = totalColonies;
+				totalColonies++;
+			}
+			function Troop(pos) {
+				this.position = {x:pos.x,y:pos.y};
+				this.angle = Math.PI/4;
+				this.moveTo = this.position;
+				this.health = 100;
+			}
+
+			function Player() {
+				this.isNeutral = false;
+				this.colonies = [new Colony()];
+				this.stats = [0,0,0];
+				this.lastFrame = 0;
+				this.enemies = [];
+				this.troops = [];
+				this.allies = [];
+				this.action;
+				var rand = Math.floor(Math.random()*availableColors.length);
+				this.color = availableColors[rand];
+				availableColors.splice(rand, 1);
+				this.id;
+				this.canUpgrade = 0;
+				this.center = this.colonies[0].position.clone();
+				this.addTroop = function(colonyId) {
+					var ang = Math.random()*Math.PI*2;
+					this.troops.push(new Troop({x:this.colonies[colonyId||0].position.x+Math.cos(ang)*(50+Math.random()*10-5),y:this.colonies[colonyId||0].position.y+Math.sin(ang)*(50+Math.random()*10-5)}));
+					this.troops[this.troops.length-1].moveTo = this.colonies[colonyId||0].position;
+				}
+				this.display = function() {
+					this.center = {x:0,y:0};
+					for (var c = 0; c < this.colonies.length; c++) {
+						this.center.x+=this.colonies[c].position.x;
+						this.center.y+=this.colonies[c].position.y;
+						ctx.fillStyle = this.color;
+						ctx.strokeStyle = this.color;
+						ctx.textBaseline = "middle";
+						ctx.textAlign = "center";
+						ctx.lineJoin = "round";
+						ctx.lineCap = "round";
+						ctx.beginPath();
+						ctx.arc(this.colonies[c].position.x, this.colonies[c].position.y, 20, 0, Math.PI*2);
+						ctx.fill();
+						ctx.beginPath();
+						ctx.lineWidth = 5;
+						ctx.arc(this.colonies[c].position.x, this.colonies[c].position.y, 30, -Math.PI/2, Math.PI*2-map(this.colonies[c].population, 0, this.stats[1]*50+1001, 0, Math.PI*2)-Math.PI/2, true);
+						ctx.stroke();
+						ctx.stroke();
+						ctx.font = "15px arial";
+						ctx.strokeStyle = "black";
+						ctx.fillText(this.colonies[c].population.toFixed(0), this.colonies[c].position.x, this.colonies[c].position.y);
+						ctx.strokeText(this.colonies[c].population.toFixed(0), this.colonies[c].position.x, this.colonies[c].position.y);
+						if (this.colonies[c].population > this.stats[1]*50+1000)
+							this.colonies[c].population	= this.stats[1]*50+1000;
+						else if (this.colonies[c].population < 0)
+							this.colonies[c].population = 0;
+						else
+							this.colonies[c].population+=Math.random()/10*(this.stats[1]+1);
+						if (this.troops.length < this.colonies.length*10+(this.stats[1]+1)*2 && frameCount-this.lastFrame > 100/(this.stats[1]+1)) {
+							this.addTroop(Math.floor(Math.random()*this.colonies.length));
+							this.lastFrame = frameCount;
+						}
+					}
+					for (var t = 0; t < this.troops.length; t++) {
+						this.center.x+=this.troops[t].position.x;
+						this.center.y+=this.troops[t].position.y;
+						this.troops[t].angle%=360;
+						if (dist(this.troops[t].position, this.troops[t].moveTo) > (this.stats[0]+1)/20) {
+							var ang = angle(this.troops[t].position, this.troops[t].moveTo);
+							this.troops[t].angle = ang;
+						}
+						if (!this.isNeutral) {
+							this.troops[t].position.x+=Math.cos(this.troops[t].angle)*(this.stats[0]+1)/2;
+							this.troops[t].position.y+=Math.sin(this.troops[t].angle)*(this.stats[0]+1)/2;
+						}
+						for (var p = 0; p < players.length; p++) {
+							for (var c = 0; c < players[p].colonies.length; c++) {
+								if (this.troops[t].distFromObject(players[p].colonies[c], 30)) {
+									this.troops[t].position.x = players[p].colonies[c].position.x-Math.cos(angle(this.troops[t].position, players[p].colonies[c].position))*30;
+									this.troops[t].position.y = players[p].colonies[c].position.y-Math.sin(angle(this.troops[t].position, players[p].colonies[c].position))*30;
+// 										this.troops[t].position.x-=Math.cos(angle(this.troops[t].position, players[p].colonies[c].position))*(20-(this.troops[t].position.x-players[p].colonies[c].position.x));
+// 										this.troops[t].position.y-=Math.sin(angle(this.troops[t].position, players[p].colonies[c].position))*(20-(this.troops[t].position.y-players[p].colonies[c].position.y));
+								}
+							}
+							for (var c = 0; c < players[p].troops.length; c++) {
+								if (this.troops[t].distFromObject(players[p].troops[c], 10) && !(p === this.id && c === t)) {
+									this.troops[t].position.x = players[p].troops[c].position.x-Math.cos(angle(this.troops[t].position, players[p].troops[c].position))*10;
+									this.troops[t].position.y = players[p].troops[c].position.y-Math.sin(angle(this.troops[t].position, players[p].troops[c].position))*10;
+// 										this.troops[t].position.x-=Math.cos(angle(this.troops[t].position, players[p].troops[c].position))*(20-(this.troops[t].position.x-players[p].troops[c].position.x));
+// 										this.troops[t].position.y-=Math.sin(angle(this.troops[t].position, players[p].troops[c].position))*(20-(this.troops[t].position.y-players[p].troops[c].position.y));
+								}
+							}
+						}
+						for (var p = 0; p < players.length; p++) {
+							var cont = true;
+							if (p !== this.id) {
+								for (var c = 0; cont && c < players[p].troops.length; c++) {
+									if (this.troops[t].distFromObject(players[p].troops[c], 20) && !(c === t)) {
+										players[p].troops[c].health-=(this.stats[2]+1)/(players[p].stats[1]+1);
+										this.troops[t].angle = angle(this.troops[t].position, players[p].troops[c].position);
+										if (players[p].troops[c].health <= 0) {
+											players[p].troops.splice(c, 1);
+											c--;
+											this.canUpgrade+=0.1;
+										}
+										cont = false;
+										p = players.length;
+									}
+								}
+							}
+							for (var c = 0; cont && c < players[p].colonies.length; c++) {
+								if (this.troops[t].distFromObject(players[p].colonies[c], 40)) {
+									if (frameCount%25 === 0)
+										if (p !== this.id) {
+											players[p].colonies[c].population-=this.stats[2]+1;
+											if (players[p].colonies[c].population <= 0) {
+												this.colonies.push(players[p].colonies[c].clone());
+												this.colonies[this.colonies.length-1].population = (this.stats[1]*50+1000)/2;
+												players[p].colonies.splice(c, 1)
+												this.canUpgrade+=0.5;
+												c--;
+											}
+										} else if (this.population < this.stats[1]*50+1000)
+											players[p].colonies[c].population+=this.stats[1]+1;
+									this.troops[t].angle = angle(this.troops[t].position, players[p].colonies[c].position);
+									cont = false;
+									p = players.length;
+								}
+							}
+						}
+						ctx.fillStyle = this.color;
+						ctx.strokeStyle = this.color;
+						ctx.textBaseline = "middle";
+						ctx.textAlign = "center";
+						ctx.lineJoin = "round";
+						ctx.lineCap = "round";
+						ctx.beginPath();
+						var size = 3;
+						ctx.moveTo(this.troops[t].position.x+Math.cos(this.troops[t].angle+Math.PI*0/2)*size*2, this.troops[t].position.y+Math.sin(this.troops[t].angle+Math.PI*0/2)*size*2);
+						ctx.lineTo(this.troops[t].position.x+Math.cos(this.troops[t].angle+Math.PI*1/2)*size*1, this.troops[t].position.y+Math.sin(this.troops[t].angle+Math.PI*1/2)*size*1);
+						ctx.lineTo(this.troops[t].position.x+Math.cos(this.troops[t].angle+Math.PI*2/2)*size*1, this.troops[t].position.y+Math.sin(this.troops[t].angle+Math.PI*2/2)*size*1);
+						ctx.lineTo(this.troops[t].position.x+Math.cos(this.troops[t].angle+Math.PI*3/2)*size*1, this.troops[t].position.y+Math.sin(this.troops[t].angle+Math.PI*3/2)*size*1);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+						ctx.stroke();
+					}
+					this.center.x/=this.colonies.length+this.troops.length;
+					this.center.y/=this.colonies.length+this.troops.length;
+				}
+				this.move = function(x,y) {
+					for (var t = 0; t < this.troops.length; t++) {
+						this.troops[t].moveTo = {x:x,y:y};
+					}
+				}
+			}
+
+			function draw() {
+				if (players[0].colonies.length < 1) {
+					alert("You lost. Press OK to restart");
+					location.reload();
+					return;
+				} else if (players[0].colonies.length >= totalColonies) {
+					alert("You won! Press OK to restart");
+					location.reload();
+					return;
+				}
+				requestAnimationFrame(draw);
+
+				ctx.globalAlpha = 0.2;
+				ctx.resetTransform();
+				ctx.fillStyle = canvas.style.background;
+				ctx.fillRect(0, 0, width, height);
+
+				if (difficulty !== 0)
+					computerAI(players.slice(1,players.length-1));
+				displayPlayers(players);
+				displayStats(players[0]);
+
+				for (var p = 0; p < pressed.length; p++) {
+					ctx.beginPath();
+					ctx.strokeStyle = players[0].color;
+					ctx.globalAlpha = 0.2-(pressed[p][2]/1000+0.0001);
+					ctx.arc(pressed[p][0], pressed[p][1], pressed[p][2], 0, Math.PI*2);
+					ctx.stroke();
+					pressed[p][2]+=10;
+					if (pressed[p][2]/1000+0.0001 > 0.2) {
+						pressed.splice(p,1);
+						p--;
+					}
+				}
+
+				frameCount++;
+			}
+		</script>
+	</body>
+<html>

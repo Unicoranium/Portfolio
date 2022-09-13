@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Working Text Clock</title>
+	</head>
+	<style>
+		p {
+			font: 50px arial;
+			margin: 0;
+			display: inline;
+			color: lightgray;
+		}
+	</style>
+	<body>
+		<p id="00">IT IS</p>
+		<p id="01">HALF</p>
+		<p id="02">TEN</p>
+		<br />
+		<p id="10">QUARTER</p>
+		<p id="11">TWENTY</p>
+		<br />
+		<p id="20">FIVE</p>
+		<p id="21">MINUTES</p>
+		<p id="22">TO</p>
+		<br />
+		<p id="30">PAST</p>
+		<p id="31">ONE</p>
+		<p id="32">THREE</p>
+		<br />
+		<p id="40">TWO</p>
+		<p id="41">FOUR</p>
+		<p id="42">FIVE</p>
+		<br />
+		<p id="50">SIX</p>
+		<p id="51">SEVEN</p>
+		<p id="52">EIGHT</p>
+		<br />
+		<p id="60">NINE</p>
+		<p id="61">TEN</p>
+		<p id="62">ELEVEN</p>
+		<br />
+		<p id="70">TWELVE</p>
+		<p id="71">O'CLOCK</p>
+		<script>
+			var frameCount = 0;
+			requestAnimationFrame(update);
+			function update() {
+				var off = 'lightgray';
+				var d = new Date();
+				var on = 'hsl(' + frameCount + ',100%,50%)';
+				var h = ((d.getHours() - 1) % 12) + 1;
+				var m = Math.round(d.getMinutes() / 5) * 5;
+				if (m == 60) {
+					m = 0;
+					h++;
+				}
+				document.getElementById('00').style.color = on;
+				document.getElementById('01').style.color = m === 30 ? on : off;
+				document.getElementById('02').style.color = Math.abs(30 - m) === 20 ? on : off;
+
+				document.getElementById('10').style.color = Math.abs(30 - m) === 15 ? on : off;
+				document.getElementById('11').style.color = Math.abs(30 - m) === 10 || Math.abs(30 - m) === 5 ? on : off;
+
+				document.getElementById('20').style.color = Math.abs(30 - m) === 25 || Math.abs(30 - m) === 5 ? on : off;
+				document.getElementById('21').style.color = m / 15 !== Math.round(m / 15) ? on : off;
+				document.getElementById('22').style.color = m > 30 && m < 60 ? on : off;
+
+				document.getElementById('30').style.color = m <= 30 && m > 0 ? on : off;
+				document.getElementById('31').style.color = h === 1 ? on : off;
+				document.getElementById('32').style.color = h === 3 ? on : off;
+
+				document.getElementById('40').style.color = h === 2 ? on : off;
+				document.getElementById('41').style.color = h === 4 ? on : off;
+				document.getElementById('42').style.color = h === 5 ? on : off;
+
+				document.getElementById('50').style.color = h === 6 ? on : off;
+				document.getElementById('51').style.color = h === 7 ? on : off;
+				document.getElementById('52').style.color = h === 8 ? on : off;
+
+				document.getElementById('60').style.color = h === 9 ? on : off;
+				document.getElementById('61').style.color = h === 10 ? on : off;
+				document.getElementById('62').style.color = h === 11 ? on : off;
+
+				document.getElementById('70').style.color = h === 12 || h === 0 ? on : off;
+				document.getElementById('71').style.color = m === 0 || m === 60 ? on : off;
+				frameCount++;
+				requestAnimationFrame(update);
+			}
+		</script>
+	</body>
+</html>

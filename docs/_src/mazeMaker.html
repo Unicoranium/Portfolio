@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Pathing</title>
+	</head>
+
+	<body onload="onLoad()">
+		<canvas id="canvas" style="border: 5px solid gray; position: absolute; left: 0; top: 0; background: black">IT'S BROKEN</canvas>
+		<script>
+			"use strict";
+			Object.prototype.distFromObjects = function (object, min) {
+				for (var o = 0; o < object.length; o++) {
+					for (var c = 0; c < object[o].colonies.length; c++) {
+						var d = dist(object[o].colonies[c].position, this.position);
+						if (d < min) {
+							return true;
+						}
+					}
+				}
+				return false;
+			};
+			Object.prototype.distFromObject = function (object, min) {
+				var d = dist(object.position, this.position);
+				if (d < min) {
+					return true;
+				}
+				return false;
+			};
+			Object.prototype.clone = function () {
+				var res = {};
+				if (this.constructor.toString().indexOf("Array") > -1) {
+					res = [];
+				}
+				for (var a in this) {
+					if (typeof this[a] != "function")
+						if (typeof this[a] == "object") {
+							res[a] = this[a].clone();
+						} else {
+							res[a] = this[a];
+						}
+				}
+				return res;
+			};
+			Object.prototype.equal = function (comp) {
+				if (Object.getOwnPropertyNames(this).length != Object.getOwnPropertyNames(comp).length) {
+					return false;
+				}
+				for (var a in this) {
+					if (typeof this[a] == "object") {
+						if (!this[a].equal(comp[a])) {
+							return false;
+						}
+					} else if (this[a] != comp[a]) {
+						return false;
+					}
+				}
+				return true;
+			};
+			Object.prototype.clear = function () {
+				this.length = 0;
+			};
+			Array.prototype.shuffle = function () {
+				var temp = this.clone();
+				this.clear();
+				while (temp.length > 0) {
+					var rand = Math.floor(Math.random() * temp.length);
+					this.push(temp[rand]);
+					temp.splice(rand, 1);
+				}
+			};
+
+			var back;
+			var diagonal = true;
+			var canvas, ctx, width, height;
+			var chances = [
+				{ chance: 3, id: 0, time: Infinity, friendlyName: "WALL" },
+				{ chance: 9, id: 1, time: 1, friendlyName: "PATH" },
+				{ chance: 9, id: 2, time: 2, friendlyName: "SLOWPATH" },
+				{ chance: 4, id: 3, time: 3, friendlyName: "FASTPATH" },
+				0,
+			];
+			var displayRules = [
+				{ fill: "black", stroke: "", textColor: "white", text: "0" },
+				{ fill: "white", stroke: "", textColor: "black", text: "1" },
+				{ fill: "rgb(170,170,170)", stroke: "", textColor: "rgb(85,85,85)", text: "2" },
+				{ fill: "rgb(85,85,85)", stroke: "", textColor: "rgb(170,170,170)", text: "3" },
+			];
+			for (var c = 0; c < chances.length; c++) {
+				if (isNaN(chances[c])) chances[chances.length - 1] += chances[c].chance;
+			}
+			var frameCount = 0;
+			var totalColonies = 0;
+			var mouseX = 0,
+				mouseY = 0;
+			var keys = [];
+			var grid = { width: Math.floor((window.innerWidth - 10) / 40), height: Math.floor((window.innerHeight - 10) / 40), world: [] };
+			var pather = {
+				pos: { x: Math.floor(map(Math.random(), 0, 1, 0, grid.width)), y: Math.floor(map(Math.random(), 0, 1, 0, grid.height)) },
+				end: { x: Math.floor(map(Math.random(), 0, 1, 0, grid.width)), y: Math.floor(map(Math.random(), 0, 1, 0, grid.height)) },
+				displayPos: function (x, y, w, h) {
+					ctx.beginPath();
+					ctx.lineWidth = 5;
+					var grd = ctx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, (w + h) / 3);
+					grd.addColorStop(0, "hsl(0, 100%, 50%)");
+					grd.addColorStop(0.1, "hsl(36, 100%, 50%)");
+					grd.addColorStop(0.2, "hsl(72, 100%, 50%)");
+					grd.addColorStop(0.3, "hsl(108, 100%, 50%)");
+					grd.addColorStop(0.4, "hsl(144, 100%, 50%)");
+					grd.addColorStop(0.5, "hsl(180, 100%, 50%)");
+					grd.addColorStop(0.6, "hsl(216, 100%, 50%)");
+					grd.addColorStop(0.7, "hsl(252, 100%, 50%)");
+					grd.addColorStop(0.8, "hsl(288, 100%, 50%)");
+					grd.addColorStop(0.9, "hsl(324, 100%, 50%)");
+					grd.addColorStop(1, "hsl(360, 100%, 50%)");
+					ctx.fillStyle = grd;
+					ctx.rect(x, y, w, h);
+					ctx.fill();
+				},
+				displayEnd: function (x, y, w, h) {
+					ctx.beginPath();
+					ctx.lineWidth = 5;
+					var grd = ctx.createRadialGradient(x + w / 2, y + h / 2, 0, x + w / 2, y + h / 2, (w + h) / 3);
+					grd.addColorStop(1, "hsl(0, 100%, 50%)");
+					grd.addColorStop(0.9, "hsl(36, 100%, 50%)");
+					grd.addColorStop(0.8, "hsl(72, 100%, 50%)");
+					grd.addColorStop(0.7, "hsl(108, 100%, 50%)");
+					grd.addColorStop(0.6, "hsl(144, 100%, 50%)");
+					grd.addColorStop(0.5, "hsl(180, 100%, 50%)");
+					grd.addColorStop(0.4, "hsl(216, 100%, 50%)");
+					grd.addColorStop(0.3, "hsl(252, 100%, 50%)");
+					grd.addColorStop(0.2, "hsl(288, 100%, 50%)");
+					grd.addColorStop(0.1, "hsl(324, 100%, 50%)");
+					grd.addColorStop(0, "hsl(360, 100%, 50%)");
+					ctx.fillStyle = grd;
+					ctx.rect(x, y, w, h);
+					ctx.fill();
+				},
+			};
+			while (pather.pos.equal(pather.end)) {
+				pather.end = { x: Math.floor(map(Math.random(), 0, 1, 0, grid.width)), y: Math.floor(map(Math.random(), 0, 1, 0, grid.height)) };
+			}
+			for (var y = 0; y < grid.height; y++) {
+				grid.world[y] = [];
+				for (var x = 0; x < grid.width; x++) {
+					var rand = map(Math.random(), 0, 1, 0, chances[chances.length - 1]);
+					var choose;
+					for (var c = 0; c < chances.length; c++) {
+						if (rand >= 0 && rand < chances[c].chance) {
+							choose = chances[c].id;
+						}
+						rand -= chances[c].chance;
+					}
+					// choose = 1;
+					grid.world[y][x] = choose;
+				}
+			}
+
+			grid.world[pather.pos.y][pather.pos.x] = 1;
+			grid.world[pather.end.y][pather.end.x] = 1;
+
+			function onLoad() {
+				canvas = document.getElementById("canvas");
+				ctx = canvas.getContext("2d");
+				canvas.width = width = window.innerWidth - 10;
+				canvas.height = height = window.innerHeight - 10;
+
+				pather.pathing = new Pathing(
+					grid.world,
+					pather.pos,
+					pather.end,
+					chances
+						.map(function (a) {
+							return typeof a == "object" ? { id: a.id, time: a.time } : undefined;
+						})
+						.sort(function (a, b) {
+							return a.id - b.id;
+						})
+				);
+
+				canvas.addEventListener("keydown", function (e) {
+					keys[e.keyCode] = true;
+				});
+				canvas.addEventListener("keyup", function (e) {
+					keys[e.keyCode] = false;
+				});
+				canvas.addEventListener("mousemove", function (e) {
+					mouseX = e.x;
+					mouseY = e.y;
+					if (pather.pos.selected) {
+						pather.pos.x = mouseX / (width / grid.width) - 0.5;
+						pather.pos.y = mouseY / (height / grid.height) - 0.5;
+					}
+					if (pather.end.selected) {
+						pather.end.x = mouseX / (width / grid.width) - 0.5;
+						pather.end.y = mouseY / (height / grid.height) - 0.5;
+					}
+				});
+				canvas.oncontextmenu = function () {
+					return false;
+				};
+				canvas.addEventListener(
+					"mousedown",
+					function (e) {
+						(mouseX = e.x), (mouseY = e.y);
+						var x = Math.floor(mouseX / (width / grid.width));
+						var y = Math.floor(mouseY / (height / grid.height));
+						if (x == pather.pos.x && y == pather.pos.y) {
+							pather.pos.selected = true;
+						} else if (x == pather.end.x && y == pather.end.y) {
+							pather.end.selected = true;
+						} else {
+							grid.world[y][x] = (displayRules.length + ((grid.world[y][x] - (e.button - 1)) % displayRules.length)) % displayRules.length;
+							grid.world[pather.pos.y][pather.pos.x] = 1;
+							grid.world[pather.end.y][pather.end.x] = 1;
+							pather.pathing = new Pathing(
+								grid.world,
+								pather.pos,
+								pather.end,
+								chances
+									.map(function (a) {
+										return typeof a == "object" ? { id: a.id, time: a.time } : undefined;
+									})
+									.sort(function (a, b) {
+										return a.id - b.id;
+									})
+							);
+							pather.pathing.step();
+						}
+					},
+					false
+				);
+				canvas.addEventListener(
+					"mouseup",
+					function (e) {
+						if (pather.pos.selected) {
+							pather.pos.x = Math.floor(mouseX / (width / grid.width));
+							pather.pos.y = Math.floor(mouseY / (height / grid.height));
+							grid.world[pather.pos.y][pather.pos.x] = 1;
+							grid.world[pather.end.y][pather.end.x] = 1;
+							pather.pathing = new Pathing(
+								grid.world,
+								pather.pos,
+								pather.end,
+								chances
+									.map(function (a) {
+										return typeof a == "object" ? { id: a.id, time: a.time } : undefined;
+									})
+									.sort(function (a, b) {
+										return a.id - b.id;
+									})
+							);
+							pather.pathing.step();
+						}
+						if (pather.end.selected) {
+							pather.end.x = Math.floor(mouseX / (width / grid.width));
+							pather.end.y = Math.floor(mouseY / (height / grid.height));
+							grid.world[pather.pos.y][pather.pos.x] = 1;
+							grid.world[pather.end.y][pather.end.x] = 1;
+							pather.pathing = new Pathing(
+								grid.world,
+								pather.pos,
+								pather.end,
+								chances
+									.map(function (a) {
+										return typeof a == "object" ? { id: a.id, time: a.time } : undefined;
+									})
+									.sort(function (a, b) {
+										return a.id - b.id;
+									})
+							);
+							pather.pathing.step();
+						}
+						pather.pos.selected = false;
+						pather.end.selected = false;
+					},
+					false
+				);
+
+				draw();
+			}
+			function map(e, t, n, r, i) {
+				return r + (i - r) * ((e - t) / (n - t));
+			}
+			function dist(pnt1, pnt2) {
+				return Math.sqrt((pnt1.x - pnt2.x) * (pnt1.x - pnt2.x) + (pnt1.y - pnt2.y) * (pnt1.y - pnt2.y));
+			}
+			function angle(pnt1, pnt2) {
+				var ang = Math.atan2(pnt2.y - pnt1.y, pnt2.x - pnt1.x);
+				while (ang <= 0) {
+					ang += Math.PI * 2;
+				}
+				ang %= Math.PI * 2;
+				return ang;
+			}
+			function constrain(e, t, n) {
+				return e > n ? n : e < t ? t : e;
+			}
+			function display(world, width, height, displayRules) {
+				for (var y = 0; y < world.length; y++) {
+					for (var x = 0; x < world[y].length; x++) {
+						ctx.beginPath();
+						ctx.lineWidth = 5;
+						ctx.fillStyle = displayRules[world[y][x]].fill;
+						ctx.strokeStyle = displayRules[world[y][x]].stroke;
+						ctx.rect(x * width, y * height, width, height);
+						ctx.fill();
+						if (displayRules[world[y][x]].stroke != "") {
+							ctx.stroke();
+							ctx.stroke();
+						}
+						ctx.fillStyle = displayRules[world[y][x]].textColor;
+						ctx.font = Math.min(width, height) / 4 + "px arial";
+						ctx.fillText(displayRules[world[y][x]].text, x * width + width / 2, y * height + height / 2 - Math.min(width, height) / 4);
+						// 						console.log(pather.pathing.searched);
+						if (pather.pathing && pather.pathing.searched) {
+							ctx.fillText(pather.pathing.searched[y][x].value, x * width + width / 2, y * height + height / 2 + Math.min(width, height) / 4);
+						}
+					}
+				}
+				// 				return ctx.
+			}
+			function getAdjacent(pos, width, height, diagonals, wrap) {
+				var x = pos.x;
+				var y = pos.y;
+				var points = [];
+				if (y > 0) {
+					if (diagonals && x > 0) {
+						points.push({ x: x - 1, y: y - 1 });
+					}
+					points.push({ x: x, y: y - 1 });
+					if (diagonals && x < width - 1) {
+						points.push({ x: x + 1, y: y - 1 });
+					}
+				}
+				if (x > 0) {
+					points.push({ x: x - 1, y: y });
+				}
+				if (x < width - 1) {
+					points.push({ x: x + 1, y: y });
+				}
+				if (y < height - 1) {
+					if (diagonals && x > 0) {
+						points.push({ x: x - 1, y: y + 1 });
+					}
+					points.push({ x: x, y: y + 1 });
+					if (diagonals && x < width - 1) {
+						points.push({ x: x + 1, y: y + 1 });
+					}
+				}
+				points.shuffle();
+				return points;
+			}
+			function Pathing(grid, start, end, rules) {
+				this.grid = grid;
+				this.searched = [];
+				for (var s = 0; s < grid.length; s++) {
+					this.searched[s] = [];
+					for (var x = 0; x < grid[0].length; x++) {
+						this.searched[s][x] = { value: Infinity };
+					}
+				}
+				this.searched[start.y][start.x].value = 0;
+				this.start = start.clone();
+				this.end = end.clone();
+				this.rules = rules;
+				this.path = [];
+				this.queue = [this.start.clone()];
+				this.old = [];
+				this.full = true;
+				this.step = function () {
+					var now = this.queue.shift();
+					if (now === undefined) {
+						var cur = this.end.clone();
+						var tries = 0;
+						this.path.push(cur.clone());
+						while (!cur.equal(this.start) && tries < this.grid.length * this.grid[0].length) {
+							cur = this.searched[cur.y][cur.x].previous.clone();
+							this.path.push(cur.clone());
+							tries++;
+						}
+						this.path.reverse();
+					} else {
+						this.old.push(now);
+						var adj = getAdjacent(now, this.grid[0].length, this.grid.length, diagonal);
+						for (var a = 0; a < adj.length; a++) {
+							if (this.searched[adj[a].y][adj[a].x].value > this.searched[now.y][now.x].value + this.rules[this.grid[adj[a].y][adj[a].x]].time) {
+								this.searched[adj[a].y][adj[a].x].previous = now.clone();
+								this.searched[adj[a].y][adj[a].x].value = this.searched[now.y][now.x].value + this.rules[this.grid[adj[a].y][adj[a].x]].time;
+							} else {
+								adj.splice(a--, 1);
+							}
+						}
+						this.queue = this.queue.concat(adj);
+						if (this.full && this.queue.length > 0) {
+							this.step();
+						} else if (adj.equal([])) this.step();
+					}
+				};
+			}
+
+			function draw() {
+				requestAnimationFrame(draw);
+
+				ctx.resetTransform();
+				ctx.fillStyle = canvas.style.background;
+				ctx.fillRect(0, 0, width, height);
+
+				if (back) {
+					ctx.drawImage(back, 0, 0);
+				} else {
+					back = display(grid.world, width / grid.width, height / grid.height, displayRules);
+				}
+				ctx.globalAlpha = 1;
+				pather.displayPos((pather.pos.x * width) / grid.width, (pather.pos.y * height) / grid.height, width / grid.width, height / grid.height);
+				pather.displayEnd((pather.end.x * width) / grid.width, (pather.end.y * height) / grid.height, width / grid.width, height / grid.height);
+
+				ctx.textBaseline = "middle";
+				ctx.textAlign = "center";
+				ctx.lineJoin = "round";
+				ctx.lineCap = "round";
+
+				if (pather.pathing.queue.length > 0) {
+					if (frameCount % 50 == 0) pather.pathing.step();
+				} else if (pather.pathing.path.length === 0) {
+					pather.pathing.step();
+				} else {
+					ctx.beginPath();
+					ctx.moveTo((pather.pathing.path[0].x * width) / grid.width + width / grid.width / 2, (pather.pathing.path[0].y * height) / grid.height + height / grid.height / 2);
+					for (var p = 1; p < pather.pathing.path.length - 1; p++) {
+						var xc = ((pather.pathing.path[p].x * width) / grid.width + width / grid.width / 2 + (pather.pathing.path[p + 1].x * width) / grid.width + width / grid.width / 2) / 2;
+						var yc = ((pather.pathing.path[p].y * height) / grid.height + height / grid.height / 2 + (pather.pathing.path[p + 1].y * height) / grid.height + height / grid.height / 2) / 2;
+						ctx.quadraticCurveTo(
+							(pather.pathing.path[p].x * width) / grid.width + width / grid.width / 2,
+							(pather.pathing.path[p].y * height) / grid.height + height / grid.height / 2,
+							xc,
+							yc
+						);
+					}
+					ctx.quadraticCurveTo(
+						(pather.pathing.path[pather.pathing.path.length - 2].x * width) / grid.width + width / grid.width / 2,
+						(pather.pathing.path[pather.pathing.path.length - 2].y * height) / grid.height + height / grid.height / 2,
+						(pather.pathing.path[pather.pathing.path.length - 1].x * width) / grid.width + width / grid.width / 2,
+						(pather.pathing.path[pather.pathing.path.length - 1].y * height) / grid.height + height / grid.height / 2
+					);
+					ctx.strokeStyle = "orange";
+					ctx.lineWidth = 5;
+					ctx.stroke();
+				}
+
+				frameCount++;
+				ctx.fillStyle = "#FF0000";
+			}
+		</script>
+	</body>
+</html>

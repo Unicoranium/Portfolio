@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+	<body onload="load()">
+		<canvas id="canvas">
+		<script>
+			var canvas, ctx, growing = 20, width, height, snake = [[200,200]], ang = 0, food = [], keys=[], speed = 3;
+			function load() {
+				canvas = document.getElementById("canvas");
+				ctx = canvas.getContext("2d");
+				canvas.width = width = innerWidth;
+				canvas.height = height = innerHeight;
+				canvas.style.position = "absolute";
+				canvas.style.left = 0;
+				canvas.style.top = 0;
+				canvas.style.background = "black";
+				draw();
+				window.onkeydown = function(e) {
+					keys[e.keyCode] = true;
+				}
+				window.onkeyup = function(e) {
+					keys[e.keyCode] = false;
+				}
+			}
+			function draw() {
+				ctx.fillStyle = canvas.style.background;
+				ctx.globalAlpha = 0.3;
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				for (var s = 0; s < snake.length; s++) {
+					ctx.beginPath();
+					ctx.arc((width+(snake[s][0]%width))%width, (height+(snake[s][1]%height))%height, (s+1)/snake.length/2*10+5, 0, Math.PI*2);
+					ctx.globalAlpha = (s+1)/snake.length/20;
+					ctx.fillStyle = "lime";
+					ctx.fill();
+				}
+				var last = snake[snake.length-1];
+				try {
+					snake.push([(width+(last[0]+Math.cos(ang)*speed)%width)%width, (height+(last[1]+Math.sin(ang)*speed)%height)%height]);
+				} catch (e) {
+					console.log(last);
+					console.log(snake);
+				}
+				if (growing <= 0) {
+					snake.shift();
+					if (growing < 0) {
+						snake.shift();
+						growing++;
+						if (growing > 0) {
+							growing = 0;
+						}
+					}
+				} else {
+					growing--;
+				}
+				if (keys[37]) {
+					ang-=0.1;
+				}
+				if (keys[39]) {
+					ang+=0.1;
+				}
+				for (var f = 0; f < food.length; f++) {
+					ctx.beginPath();
+					ctx.arc(food[f][0], food[f][1], Math.abs(food[f][2]), 0, Math.PI*2);
+					ctx.globalAlpha = 1;
+					if (food[f][3] == 0) {
+						if (food[f][2] < 0) {
+							ctx.fillStyle = "red";
+						} else if (food[f][2] > 0){
+							ctx.fillStyle = "lime";
+						} else {
+							food.splice(f, 1);
+							f--;
+						}
+					} else {
+						if (food[f][2] < 0) {
+							ctx.fillStyle = "yellow";
+						} else if (food[f][2] > 0){
+							ctx.fillStyle = "blue";
+						} else {
+							food.splice(f, 1);
+							f--;
+						}
+					}
+					ctx.fill();
+					// console.log(food[f])
+					if (dist(food[f], last) < 15) {
+						if (food[f][3] == 0) {
+							growing+=food[f][2]*4;
+						} else {
+							speed+=food[f][2]/4;
+						}
+						food.splice(f, 1);
+						f--;
+					}
+				}
+				if (food.length < 9) {
+					food.push([Math.random()*width, Math.random()*height, Math.floor(Math.random()*10-3), Math.round(Math.random())]);
+				}
+
+				requestAnimationFrame(draw);
+			}
+			function dist(pnt1, pnt2) {
+				try {
+					return Math.sqrt(Math.pow(pnt2[0]-pnt1[0],2)+Math.pow(pnt2[1]-pnt1[1],2));
+				} catch (e) {
+					console.log(pnt1, pnt2);
+					return Infinity;
+				}
+
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Testing With Webpages</title>
+	</head>
+	<canvas style="background: blue; position: absolute; left: 0px; top: 0px" id="CGOLCanvas">Tis Broken D:</canvas>
+	<body>
+		<input
+			type="number"
+			width="100"
+			height="50"
+			style="border: 5px solid gray; position: absolute; width: 50px; height: 25px; color: black; text-align: center"
+			min="5"
+			id="CGOLWidth"
+			value="200"
+		/>
+		<input
+			type="number"
+			width="100"
+			height="50"
+			style="border: 5px solid gray; position: absolute; width: 50px; height: 25px; color: black; text-align: center"
+			min="5"
+			id="CGOLHeight"
+			value="200"
+		/>
+		<input type="number" width="100" height="50" style="border: 5px solid gray; position: absolute; width: 50px; height: 25px; color: black; text-align: center" min="1" id="CGOLFPS" value="10" />
+		<button onClick="pause();" style="position: absolute" id="CGOLPause">Pause</button>
+		<button onClick="pause();" style="position: absolute" id="CGOLPlay" hidden="true">Play</button>
+		<button onClick="randomize();" style="position: absolute" id="CGOLRandomize">Randomize</button>
+		<button onClick="cler();" style="position: absolute" id="CGOLClear">Clear</button>
+		<button onClick="invert();" style="position: absolute" id="CGOLInvert">Invert</button>
+	</body>
+
+	<script>
+		var canvas = document.getElementById('CGOLCanvas');
+		var ctx = canvas.getContext('2d');
+		canvas.width = innerWidth - 100;
+		canvas.height = innerHeight;
+		var frameSpeed = 40;
+		frameSpeed = 1000 / frameSpeed;
+		var frameRate = 1000;
+		var frameCount = 0;
+		var paused = false;
+		document.getElementById('CGOLWidth').style.left = canvas.width + 'px';
+		document.getElementById('CGOLWidth').style.top = 0 + 'px';
+		var width = document.getElementById('CGOLWidth').value;
+		var w = canvas.width / width;
+		document.getElementById('CGOLHeight').style.left = canvas.width + 'px';
+		document.getElementById('CGOLHeight').style.top = 35 + 'px';
+		var height = document.getElementById('CGOLHeight').value;
+		var h = canvas.height / height;
+		document.getElementById('CGOLFPS').style.left = canvas.width + 'px';
+		document.getElementById('CGOLFPS').style.top = 70 + 'px';
+		document.getElementById('CGOLPause').style.left = canvas.width + 'px';
+		document.getElementById('CGOLPlay').style.top = 110 + 'px';
+		document.getElementById('CGOLPlay').style.left = canvas.width + 'px';
+		document.getElementById('CGOLPause').style.top = 110 + 'px';
+		document.getElementById('CGOLRandomize').style.left = canvas.width + 'px';
+		document.getElementById('CGOLRandomize').style.top = 130 + 'px';
+		document.getElementById('CGOLClear').style.left = canvas.width + 'px';
+		document.getElementById('CGOLClear').style.top = 150 + 'px';
+		document.getElementById('CGOLInvert').style.left = canvas.width + 'px';
+		document.getElementById('CGOLInvert').style.top = 170 + 'px';
+		var world = [];
+		for (var y = 0; y < height; y++) {
+			var t = [];
+			for (var x = 0; x < width; x++) {
+				t.push(Math.round(Math.random()));
+			}
+			world.push(t);
+		}
+		function pause() {
+			clearInterval(drawFunc);
+			switch (paused) {
+				case false:
+					paused = true;
+					document.getElementById('CGOLPause').hidden = true;
+					document.getElementById('CGOLPlay').hidden = false;
+					break;
+				case true:
+					paused = false;
+					document.getElementById('CGOLPause').hidden = false;
+					document.getElementById('CGOLPlay').hidden = true;
+					break;
+			}
+			drawFunc = setInterval(draw, frameRate);
+		}
+		function randomize() {
+			for (var y = 0; y < height; y++) {
+				for (var x = 0; x < width; x++) {
+					world[y][x] = Math.round(Math.random());
+				}
+			}
+		}
+		function cler() {
+			for (var y = 0; y < height; y++) {
+				for (var x = 0; x < width; x++) {
+					world[y][x] = 0;
+				}
+			}
+		}
+		function invert() {
+			for (var y = 0; y < height; y++) {
+				for (var x = 0; x < width; x++) {
+					world[y][x] = (world[y][x] + 1) % 2;
+				}
+			}
+		}
+		function getSurroundings(x, y) {
+			var surroundings = [
+				[x - 1, y - 1],
+				[x, y - 1],
+				[x + 1, y - 1],
+
+				[x - 1, y],
+				[x + 1, y],
+
+				[x - 1, y + 1],
+				[x, y + 1],
+				[x + 1, y + 1],
+			];
+			var t = 0;
+			for (var s = 0; s < surroundings.length; s++) {
+				if (surroundings[s][0] < 0) {
+					surroundings[s][0] = width - 1;
+				}
+				if (surroundings[s][1] < 0) {
+					surroundings[s][1] = height - 1;
+				}
+				if (surroundings[s][0] > width - 1) {
+					surroundings[s][0] = 0;
+				}
+				if (surroundings[s][1] > height - 1) {
+					surroundings[s][1] = 0;
+				}
+				switch (world[surroundings[s][1]][surroundings[s][0]]) {
+					case 1:
+						t++;
+						break;
+				}
+			}
+			return t;
+		}
+		function updateBoard() {
+			var changes = [];
+			for (var x = 0; x < width; x++) {
+				for (var y = 0; y < height; y++) {
+					var surroundings = getSurroundings(x, y);
+					switch (surroundings) {
+						case 0:
+						case 1:
+							changes.push([x, y, 0]);
+							break;
+						case 2:
+							break;
+						case 3:
+							changes.push([x, y, 1]);
+							break;
+						case 4:
+						case 5:
+						case 6:
+						case 7:
+						case 8:
+							changes.push([x, y, 0]);
+							break;
+					}
+				}
+			}
+			for (var c = 0; c < changes.length; c++) {
+				world[changes[c][1]][changes[c][0]] = changes[c][2];
+			}
+		}
+		function drawBoard() {
+			for (var y = 0; y < height; y++) {
+				for (var x = 0; x < width; x++) {
+					switch (world[y][x]) {
+						case 0:
+							ctx.fillStyle = 'white';
+							ctx.strokeStyle = 'gray';
+							ctx.lineWidth = Math.min(w, h) / 5;
+							ctx.fillRect(x * w, y * h, w, h);
+							ctx.strokeRect(x * w, y * h, w, h);
+							break;
+						case 1:
+							ctx.fillStyle = 'black';
+							ctx.strokeStyle = 'gray';
+							ctx.lineWidth = Math.min(w, h) / 5;
+							ctx.fillRect(x * w, y * h, w, h);
+							ctx.strokeRect(x * w, y * h, w, h);
+							break;
+					}
+				}
+			}
+		}
+		function draw() {
+			frameRate = 1000 / document.getElementById('CGOLFPS').value;
+			clearInterval(drawFunc);
+			drawFunc = setInterval(draw, frameRate);
+			if (!paused) {
+				updateBoard();
+			}
+			drawBoard();
+			frameCount++;
+			width = document.getElementById('CGOLWidth').value;
+			w = canvas.width / width;
+			height = document.getElementById('CGOLHeight').value;
+			h = canvas.height / height;
+			if (world[0].length > width) {
+				while (world[0].length > width) {
+					for (var y = 0; y < height; y++) {
+						world[y].pop();
+					}
+				}
+			} else if (world[0].length < width) {
+				while (world[0].length < width) {
+					for (var y = 0; y < height; y++) {
+						world[y].push(world[y][world[y].length - 1]);
+					}
+				}
+			}
+			if (world.length > height) {
+				while (world.length > height) {
+					world.pop();
+				}
+			} else if (world.length < height) {
+				while (world.length < height) {
+					var t = [];
+					for (var x = 0; x < width; x++) {
+						t.push(world[world.length - 1][x]);
+					}
+					world.push(t);
+				}
+			}
+		}
+		var drawFunc = setInterval(draw, frameRate);
+		canvas.addEventListener(
+			'click',
+			function (e) {
+				if (paused) {
+					var mouseX = e.clientX - canvas.getBoundingClientRect().left;
+					var mouseY = e.clientY - canvas.getBoundingClientRect().top;
+					var x = Math.floor(mouseX / w);
+					var y = Math.floor(mouseY / h);
+					world[y][x] = (world[y][x] + 1) % 2;
+				}
+			},
+			false
+		);
+	</script>
+</html>

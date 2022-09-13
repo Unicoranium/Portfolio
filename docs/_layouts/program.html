@@ -1,0 +1,49 @@
+---
+layout: default
+---
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+	<header class="post-header">
+		<h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+		<p class="post-meta">
+			{%- if page.author -%} • {% for author in page.author %}
+			<span itemprop="author" itemscope itemtype="http://schema.org/Person">
+				<span class="p-author h-card" itemprop="name">{{ author }}</span>
+			</span>
+			{%- if forloop.last == false %}, {% endif -%} {% endfor %} {%- endif -%}
+		</p>
+	</header>
+
+	<div class="post-content e-content" itemprop="articleBody">
+		{{ page.desc }} {% assign path = page.path | split: "." | first | split: "/" | last %}
+		<br /><br />
+		{% case page.type %} {% when 'html' %}
+		<iframe id="frame" style="max-width: 100%; width: 1000px; min-height: 563px" src="{{ path | prepend: '/src/' | relative_url}}.html"></iframe><br /><br />
+		<button onclick="let frame = document.getElementById('frame'); frame.src = frame.src">Reload</button>
+		<a href="{{ path | prepend: '/src/' | relative_url}}.html" target="_blank">Open in new tab</a>
+		<br /><br />
+		{% when 'lua' %} {% endcase %} {{ content }}
+
+		<br /><br />
+		{% if page.tags %} {% assign tags = page.tags | sort %} Tags: {% for tag in tags %}
+		<a href="{{ site.baseurl }}/tags#{{ tag | slugify | url_encode }}" class="tag capitalize">{{ tag }}</a>
+		{% endfor %} {% endif %}
+		<!-- {% if page.similar %}
+            Similar:<br/>
+            {% for similar in site.programs %}
+                {% if page.similar contains similar.name %}
+                    <a href="{{ similar.url | relative_url }}">{{ similar.title }}</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %} -->
+	</div>
+
+	{%- if site.disqus.shortname -%} {%- include disqus_comments.html -%} {%- endif -%}
+
+	<a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+	<style>
+		.capitalize {
+			text-transform: capitalize;
+		}
+	</style>
+</article>

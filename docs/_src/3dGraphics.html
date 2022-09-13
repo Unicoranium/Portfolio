@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>3D Shapes</title>
+	</head>
+
+	<canvas id="canvas" width="800" height="700" style="border: 15px solid lime; background: black; position: absolute; left: 0px; top: 0px"></canvas>
+
+	<body onload="onload();"></body>
+
+	<script>
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+		var colors = [
+			'aqua',
+			'blue',
+			'blueviolet',
+			'chartreuse',
+			'cornflowerblue',
+			'crimson',
+			'darkblue',
+			'dodgerblue',
+			'firebrick',
+			'forestgreen',
+			'gold',
+			'green',
+			'hotpink',
+			'indianred',
+			'indigo',
+			'lawngreen',
+			'lime',
+			'limegreen',
+			'magenta',
+			'maroon',
+			'navy',
+			'orange',
+			'orangered',
+			'orchid',
+			'purple',
+			'rebeccapurple',
+			'red',
+			'royalblue',
+			'seagreen',
+			'springgreen',
+			'steelblue',
+			'teal',
+			'turquoise',
+			'yellow',
+			'yellowgreen',
+		];
+		var frameCount = 0;
+
+		function onload() {
+			canvas.width = innerWidth - 30;
+			canvas.height = innerHeight - 30;
+			ctx.translate(canvas.width / 2, canvas.height / 2);
+			console.log(canvas.width);
+			console.log(canvas.height);
+			objects = [
+				new Cube(
+					'h',
+					map(-650, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'h',
+					map(-575, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'h',
+					map(-500, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'a',
+					map(-400, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-225, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(150, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(-325, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(-325, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(-250, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-225, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(150, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'p',
+					map(-150, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(-75, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(-75, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(0, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'p',
+					map(100, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(175, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(175, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'p',
+					map(250, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'y',
+					map(350, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(400, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(450, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(500, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(550, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(-325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'b',
+					map(-750, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'b',
+					map(-675, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'b',
+					map(-675, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'b',
+					map(-675, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'b',
+					map(-600, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(50, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'b',
+					map(-600, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(50, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'-',
+					map(-475, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'd',
+					map(-350, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'd',
+					map(-275, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'd',
+					map(-275, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'd',
+					map(-200, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(125, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'a',
+					map(-100, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(275, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(150, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(-25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(275, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(-25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'a',
+					map(50, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(275, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(150, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'y',
+					map(150, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(200, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(250, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(325, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(300, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(250, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'y',
+					map(350, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(175, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(100, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+
+				new Cube(
+					'!',
+					map(500, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(200, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(125, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+				new Cube(
+					'!',
+					map(500, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(400, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * canvas.width - canvas.width / 2,
+					map(25, -943, 943, -canvas.width / 2, canvas.width / 2),
+					map(25, -477.5, 477.5, -canvas.height / 2, canvas.height / 2),
+					Math.random() * 100 + 10,
+					'',
+					'',
+					'',
+					1,
+					0.5,
+					0
+				),
+			];
+			var currLetter;
+			var currColor;
+			for (var o = 0; o < objects.length; o++) {
+				if (currLetter !== objects[o].letter) {
+					currLetter = objects[o].letter;
+					currColor = o % colors.length;
+				}
+				objects[o].f = colors[currColor];
+				objects[o].e = colors[colors.length - 1 - currColor];
+				objects[o].fa = 0.5;
+			}
+			rotate3D(0, -180, 0, [0, 0, 0], objects);
+		}
+
+		function findCenter(args) {
+			var x = 0;
+			var y = 0;
+			var z = 0;
+			var amt = 0;
+			for (var a = 0; a < args.length; a++) {
+				x += args[a][0];
+				y += args[a][1];
+				z += args[a][2];
+				amt++;
+			}
+			x /= amt;
+			y /= amt;
+			z /= amt;
+			return [x, y, z];
+		}
+		function dist(x1, y1, x2, y2) {
+			var x = x2 - x1;
+			var y = y2 - y1;
+			return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+		}
+		function dist3d(x1, y1, z1, x2, y2, z2) {
+			var x = x2 - x1;
+			var y = y2 - y1;
+			var z = z2 - z1;
+			return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+		}
+		function degrees(angle) {
+			return ((angle * 180) / Math.PI) % 360;
+		}
+		function radians(angle) {
+			return (angle * (Math.PI / 180)) % 360;
+		}
+		function angle(x1, y1, x2, y2) {
+			var angle = Math.atan((y2 - y1) / (x2 - x1));
+			angle = degrees(angle);
+			if (x2 < x1) {
+				angle += 180;
+			}
+			if (angle < 0) {
+				angle += 360;
+			}
+			return angle;
+		}
+		function getSlope(x1, y1, x2, y2) {
+			var m = (y2 - y1) / (x2 - x1);
+			var b = -(x1 * m - y1);
+			if (b === -0) {
+				b = 0;
+			}
+			if (m === Infinity) {
+				return { x: x1 };
+			}
+			return { m: m, b: b };
+		}
+		function getIntercept(obj1, obj2) {
+			var x;
+			var y;
+			if (obj1.x === undefined && obj2.x === undefined) {
+				x = (obj2.b - obj1.b) / (obj1.m - obj2.m);
+				y = (obj1.b * obj2.m - obj2.b * obj1.m) / (obj2.m - obj1.m);
+				if (y === -0) {
+					y = 0;
+				}
+			} else if ((obj1.x !== undefined) ^ (obj2.x !== undefined)) {
+				var m;
+				var b;
+				if (obj1.x !== undefined) {
+					x = obj1.x;
+					m = obj2.m;
+					b = obj2.b;
+				} else {
+					x = obj2.x;
+					m = obj1.m;
+					b = obj1.b;
+				}
+				y = m * x + b;
+			} else {
+				return null;
+			}
+			return { x: x, y: y };
+		}
+		function areaTriangle(x1, y1, x2, y2, x3, y3) {
+			var a = dist(x1, y1, x2, y2);
+			var b = dist(x2, y2, x3, y3);
+			var c = dist(x3, y3, x1, y1);
+			var p = (a + b + c) / 2;
+			var ans = Math.sqrt(p * (p - a) * (p - b) * (p - c));
+			if (isNaN(ans)) {
+				ans = p;
+			}
+			return ans;
+		}
+		function inQuad(x0, y0, x1, y1, x2, y2, x3, y3, x4, y4) {
+			var a1 = areaTriangle(x0, y0, x1, y1, x2, y2);
+			var b1 = areaTriangle(x0, y0, x2, y2, x3, y3);
+			var c1 = areaTriangle(x0, y0, x3, y3, x4, y4);
+			var d1 = areaTriangle(x0, y0, x4, y4, x1, y1);
+			var x5 = (x1 + x2 + x3 + x4) / 4;
+			var y5 = (y1 + y2 + y3 + y4) / 4;
+			var a2 = areaTriangle(x5, y5, x1, y1, x2, y2);
+			var b2 = areaTriangle(x5, y5, x2, y2, x3, y3);
+			var c2 = areaTriangle(x5, y5, x3, y3, x4, y4);
+			var d2 = areaTriangle(x5, y5, x4, y4, x1, y1);
+			var e1 = a1 + b1 + c1 + d1;
+			var e2 = a2 + b2 + c2 + d2;
+			if (e1 === e2) {
+				return true;
+			} else if (Math.abs(e1 - e2) < 5) {
+				return true;
+			} else {
+				return { e1: e1, e2: e2 };
+			}
+		}
+		function map(n, f, s, t, l) {
+			return t + (l - t) * ((n - f) / (s - f));
+		}
+		function draw3D(obj1, obj2) {
+			var temp = [];
+			for (var a = 0; a < arguments.length; a++) {
+				if (arguments[a].constructor.toString().indexOf('Array') > -1) {
+					for (var v = 0; v < arguments[a].length; v++) {
+						temp.push(arguments[a][v]);
+					}
+				} else {
+					temp.push(arguments[a]);
+				}
+			}
+			temp.sort(function (a, b) {
+				return findCenter(a.vertex)[2] - findCenter(b.vertex)[2];
+			});
+			arguments = temp;
+			var pnts = [];
+			var faces = [];
+			var currVertex = 0;
+			var currArg = 0;
+			var totalArgs = [];
+			for (var a = 0; a < arguments.length; a++) {
+				if (arguments[a].constructor.toString().indexOf('Array') > -1) {
+					for (var o = 0; o < arguments[a].length; o++) {
+						for (var v = 0; v < arguments[a][o].vertex.length; v++) {
+							pnts.push([arguments[a][o].vertex[v][0], arguments[a][o].vertex[v][1], arguments[a][o].vertex[v][2], a, v, o]);
+						}
+						for (var f = 0; f < arguments[a][o].faces.length; f++) {
+							faces.push(arguments[a][o].faces[f]);
+						}
+						currVertex += arguments[a][o].vertex.length;
+						totalArgs++;
+					}
+				} else {
+					for (var v = 0; v < arguments[a].vertex.length; v++) {
+						pnts.push([arguments[a].vertex[v][0], arguments[a].vertex[v][1], arguments[a].vertex[v][2], a, v]);
+					}
+					for (var f = 0; f < arguments[a].faces.length; f++) {
+						faces.push(arguments[a].faces[f]);
+					}
+					currVertex += arguments[a].vertex.length;
+					totalArgs++;
+				}
+			}
+			var exclude = [];
+			for (var t = 0; t < totalArgs; t++) {
+				exclude.push([]);
+			}
+			for (var v = 0; v < pnts.length; v++) {
+				for (var f = 0; f < faces.length; f++) {
+					if (faces[f].indexOf(v) === -1) {
+						var inquad = inQuad(
+							pnts[v][0],
+							pnts[v][1],
+							pnts[faces[f][0]][0],
+							pnts[faces[f][0]][1],
+							pnts[faces[f][1]][0],
+							pnts[faces[f][1]][1],
+							pnts[faces[f][2]][0],
+							pnts[faces[f][2]][1],
+							pnts[faces[f][3]][0],
+							pnts[faces[f][3]][1]
+						);
+						if (inquad === true) {
+							var ex = false;
+							for (var p = 0; p < faces[f].length; p++) {
+								if (pnts[v][2] <= pnts[faces[f][p]][2]) {
+									ex = true;
+								} else {
+									ex = false;
+								}
+							}
+							exclude[pnts[v][3]][pnts[v][4]] = ex;
+						}
+					}
+				}
+			}
+			var curObj = 0;
+			for (var a = 0; a < arguments.length; a++) {
+				if (arguments[a].constructor.toString().indexOf('Array') > -1) {
+					for (var o = 0; o < arguments[a].length; o++) {
+						arguments[a][o].display(exclude[curObj]);
+						curObj++;
+					}
+				} else {
+					arguments[a].display(exclude[curObj]);
+					curObj++;
+				}
+			}
+		}
+		function rotate3D(x, y, z, center) {
+			for (var a = 4; a < arguments.length; a++) {
+				if (arguments[a].constructor.toString().indexOf('Array') > -1) {
+					for (var o = 0; o < arguments[a].length; o++) {
+						arguments[a][o].rotateX(x, center);
+						arguments[a][o].rotateY(y, center);
+						arguments[a][o].rotateZ(z, center);
+					}
+				} else {
+					arguments[a].rotateX(x, center);
+					arguments[a].rotateY(y, center);
+					arguments[a].rotateZ(z, center);
+				}
+			}
+		}
+
+		var light = [-100, -100, 100, 100, Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height) / 2];
+
+		function Cube(letter, x, y, z, w, h, d, f, e, v, fa, ea, va, xa, ya, za) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.w = w;
+			this.h = h;
+			this.d = d;
+			this.f = f;
+			this.e = e;
+			this.v = v;
+			this.fa = fa;
+			this.ea = ea;
+			this.va = va;
+			this.letter = letter;
+			this.vertex = [
+				[x - w, y - h, z - d],
+				[x + w, y - h, z - d],
+				[x + w, y + h, z - d],
+				[x - w, y + h, z - d],
+				[x - w, y + h, z + d],
+				[x - w, y - h, z + d],
+				[x + w, y - h, z + d],
+				[x + w, y + h, z + d],
+			];
+			this.edges = [
+				[0, 1],
+				[0, 3],
+				[0, 5],
+				[1, 2],
+				[1, 6],
+				[2, 3],
+				[2, 7],
+				[3, 4],
+				[4, 5],
+				[4, 7],
+				[5, 6],
+				[6, 7],
+			];
+			this.faces = [
+				[0, 1, 2, 3],
+				[0, 1, 6, 5],
+				[0, 3, 4, 5],
+				[1, 2, 7, 6],
+				[2, 3, 4, 7],
+				[4, 5, 6, 7],
+			];
+			this.display = function (exclude) {
+				var coverSelf = [];
+				for (var v = 0; v < this.vertex.length; v++) {
+					for (var f = 0; f < this.faces.length; f++) {
+						if (this.faces[f].indexOf(v) === -1) {
+							var inquad = inQuad(
+								this.vertex[v][0],
+								this.vertex[v][1],
+								this.vertex[this.faces[f][0]][0],
+								this.vertex[this.faces[f][0]][1],
+								this.vertex[this.faces[f][1]][0],
+								this.vertex[this.faces[f][1]][1],
+								this.vertex[this.faces[f][2]][0],
+								this.vertex[this.faces[f][2]][1],
+								this.vertex[this.faces[f][3]][0],
+								this.vertex[this.faces[f][3]][1]
+							);
+							if (inquad === true) {
+								var ex = false;
+								for (var p = 0; p < this.faces[f].length; p++) {
+									if (this.vertex[v][2] <= this.vertex[this.faces[f][p]][2]) {
+										ex = true;
+									} else {
+										ex = false;
+									}
+								}
+								coverSelf[v] = ex;
+							}
+						}
+					}
+				}
+				ctx.lineCap = 'round';
+				ctx.lineWidth = 5;
+				ctx.fillStyle = this.f;
+				ctx.strokeStyle = this.f;
+				ctx.globalAlpha = this.fa;
+				for (var f = 0; f < this.faces.length; f++) {
+					var display = true;
+					var covers = 0;
+					for (var p = 0; p < this.faces[f].length; p++) {
+						if (coverSelf[this.faces[f][p]] === true) {
+							display = false;
+						}
+						if (exclude[this.faces[f][p]] === true) {
+							covers++;
+						}
+					}
+					if (covers >= this.faces[f].length) {
+						display = false;
+					}
+					if (display) {
+						ctx.beginPath();
+						ctx.fillStyle = this.f;
+						ctx.globalAlpha = this.fa;
+						ctx.moveTo(this.vertex[this.faces[f][0]][0], this.vertex[this.faces[f][0]][1]);
+						for (var p = 1; p < this.faces[f].length; p++) {
+							ctx.lineTo(this.vertex[this.faces[f][p]][0], this.vertex[this.faces[f][p]][1]);
+						}
+						ctx.fill();
+						var x = 0;
+						var y = 0;
+						var z = 0;
+						for (var p = 0; p < this.faces[f].length; p++) {
+							x += this.vertex[this.faces[f][p]][0];
+							y += this.vertex[this.faces[f][p]][1];
+							z += this.vertex[this.faces[f][p]][2];
+						}
+						x /= this.faces[f].length;
+						y /= this.faces[f].length;
+						z /= this.faces[f].length;
+						var d3d = dist3d(light[0], light[1], light[2], x, y, z);
+						var grd = ctx.createRadialGradient(light[0], light[1], light[3], light[0], light[1], light[4]);
+						grd.addColorStop(0, 'white');
+						grd.addColorStop(1, 'black');
+						ctx.fillStyle = grd;
+						ctx.strokeStyle = grd;
+						ctx.globalAlpha = this.fa / 2;
+						ctx.beginPath();
+						ctx.moveTo(this.vertex[this.faces[f][0]][0], this.vertex[this.faces[f][0]][1]);
+						for (var p = 1; p < this.faces[f].length; p++) {
+							ctx.lineTo(this.vertex[this.faces[f][p]][0], this.vertex[this.faces[f][p]][1]);
+						}
+						ctx.fill();
+					}
+				}
+
+				ctx.fillStyle = this.e;
+				ctx.strokeStyle = this.e;
+				ctx.globalAlpha = this.ea;
+				for (var e = 0; e < this.edges.length; e++) {
+					var display = true;
+					var covers = 0;
+					for (var p = 0; p < this.edges[e].length; p++) {
+						if (coverSelf[this.edges[e][p]] === true) {
+							display = false;
+						}
+						if (exclude[this.edges[e][p]] === true) {
+							// 							covers++;
+						}
+					}
+					if (covers >= this.edges[e].length) {
+						display = false;
+					}
+					if (display) {
+						ctx.beginPath();
+						ctx.moveTo(this.vertex[this.edges[e][0]][0], this.vertex[this.edges[e][0]][1]);
+						ctx.lineTo(this.vertex[this.edges[e][1]][0], this.vertex[this.edges[e][1]][1]);
+						ctx.stroke();
+					}
+				}
+
+				ctx.fillStyle = this.v;
+				ctx.strokeStyle = this.v;
+				ctx.globalAlpha = this.va;
+				ctx.moveTo(this.vertex[0][0], this.vertex[0][1]);
+				for (var v = 0; v < this.vertex.length; v++) {
+					var display = true;
+					if (coverSelf[v] === true) {
+						display = false;
+					}
+					if (exclude[v] === true) {
+						display = false;
+					}
+					if (display) {
+						ctx.beginPath();
+						ctx.arc(this.vertex[v][0], this.vertex[v][1], 10, 0, Math.PI * 2);
+						ctx.fill();
+					}
+				}
+			};
+			this.rotateX = function (theta, center) {
+				if (center === undefined) {
+					center = findCenter(this.vertex);
+				}
+				theta /= 180;
+				theta *= Math.PI;
+				var st = Math.sin(theta);
+				var ct = Math.cos(theta);
+				for (var v = 0; v < this.vertex.length; v++) {
+					var vert = this.vertex[v];
+					var y = vert[1];
+					var z = vert[2];
+					y -= center[1];
+					z -= center[2];
+					vert[1] = y * ct - z * st;
+					vert[2] = z * ct + y * st;
+					vert[1] += center[1];
+					vert[2] += center[2];
+				}
+			};
+			this.rotateY = function (theta, center) {
+				if (center === undefined) {
+					center = findCenter(this.vertex);
+				}
+				theta /= 180;
+				theta *= Math.PI;
+				var st = Math.sin(theta);
+				var ct = Math.cos(theta);
+				for (var v = 0; v < this.vertex.length; v++) {
+					var vert = this.vertex[v];
+					var x = vert[0];
+					var z = vert[2];
+
+					if (center === undefined) {
+						x -= this.x;
+						z -= this.z;
+					} else {
+						x -= center[0];
+						z -= center[2];
+					}
+					vert[0] = x * ct - z * st;
+					vert[2] = z * ct + x * st;
+					if (center === undefined) {
+						vert[0] += this.x;
+						vert[2] += this.z;
+					} else {
+						vert[0] += center[0];
+						vert[2] += center[2];
+					}
+				}
+			};
+			this.rotateZ = function (theta, center) {
+				if (center === undefined) {
+					center = findCenter(this.vertex);
+				}
+				theta /= 180;
+				theta *= Math.PI;
+				var st = Math.sin(theta);
+				var ct = Math.cos(theta);
+				for (var v = 0; v < this.vertex.length; v++) {
+					var vert = this.vertex[v];
+					var x = vert[0];
+					var y = vert[1];
+					x -= center[0];
+					y -= center[1];
+					vert[0] = x * ct - y * st;
+					vert[1] = y * ct + x * st;
+					vert[0] += center[0];
+					vert[1] += center[1];
+				}
+			};
+			this.rotateX(xa || 0, [x, y, z]);
+			this.rotateY(ya || 0, [x, y, z]);
+			this.rotateZ(za || 0, [x, y, z]);
+		}
+
+		var col = [];
+		colors.sort(function () {
+			return Math.random() * 100 - Math.random() * 100;
+		});
+
+		var objects = [];
+
+		var xRot = (yRot = zRot = 0);
+		var xRotChange = 1,
+			yRotChange = (zRotChange = 0);
+		var center = [0, 0, 0];
+		var rotSpeed = 5;
+		function draw() {
+			ctx.stroke();
+			ctx.fill();
+			ctx.globalAlpha = 1;
+			ctx.clearRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+			var grd = ctx.createRadialGradient(0, 0, 0, 0, 0, dist(0, 0, canvas.width / 2, canvas.height / 2));
+			grd.addColorStop(0, 'white');
+			grd.addColorStop(1, 'black');
+			ctx.fillStyle = grd;
+			ctx.fillRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+			rotate3D(0, rotSpeed, 0, center, objects);
+			draw3D(objects);
+			// 			frameCount = (frameCount+1)%360;
+			frameCount++;
+			if (frameCount % (360 / rotSpeed) === 180 / rotSpeed) {
+				clearInterval(d);
+				setTimeout(function () {
+					d = setInterval(draw, 50);
+				}, 1000);
+			}
+		}
+		var d = setInterval(draw, 50);
+	</script>
+</html>

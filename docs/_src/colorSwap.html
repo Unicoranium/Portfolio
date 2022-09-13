@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			table {
+				display: inline-table;
+			}
+			table,
+			th,
+			td {
+				table-layout: fixed;
+				border: 1px solid black;
+				padding: 5px;
+			}
+			td {
+				padding: 50px;
+			}
+			tr {
+				width: 50px;
+				height: 50px;
+			}
+			table.first {
+				border: green 10px dashed;
+			}
+			table.second {
+				border: red 10px dashed;
+			}
+			.l {
+				background-color: lime;
+			}
+			.y {
+				background-color: gray;
+			}
+			.c {
+				background-color: cyan;
+			}
+			.b {
+				background-color: blue;
+			}
+			.g {
+				background-color: yellowgreen;
+			}
+			.p {
+				background-color: purple;
+			}
+			.r {
+				background-color: red;
+			}
+			.o {
+				background-color: orange;
+			}
+			.e {
+				background-color: black;
+			}
+			.k {
+				background-color: hotpink;
+			}
+			.w {
+				background-color: yellow;
+			}
+			.n {
+				background-color: brown;
+			}
+			.d {
+				background-color: green;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="result"></div>
+		<div id="number"></div>
+		<script>
+			//recognized letters: l, y, c, b, g, p, r, o, k, w, n, d
+			//anything else will just show as white, but will still be separated correctly
+			//e means empty
+			let raw = `cbrcgokwonyplbpdrkcolpgwycrlkynnbykgdrdnpwbwdlgo`;
+
+			// let raw = "lllrlkroorokkokbrbbb";
+			let count = 7 + 7;
+			// let row = 5;
+			let tubes = deserialize(raw);
+			document.getElementById('result').innerHTML = tubes.reduce((a, b, i) => a + `<table id="${i}">${b.reduce((a, b) => a + `<tr><td class="${b}"></td></tr>`, '')}</table>`, '');
+			let steps = [];
+			let moves = [];
+			let step = 0;
+			let queue = [];
+			let loop = true;
+			let maxHit = 0;
+			let start = Date.now();
+			let initialStart = Date.now();
+			let totalChecked = 0;
+			function total(a, s) {
+				let res = 0;
+				for (let i = a.indexOf(s); i < a.length; i++) {
+					if (a[i] == s) {
+						res++;
+					} else {
+						i += 100;
+						break;
+					}
+				}
+				return res;
+			}
+			function isValid(a, b) {
+				if (typeof a == typeof 0) (a = tubes[a]), (b = tubes[b]);
+				return (
+					(a[0] != a[3] ? true : total(b, tubeTop(a)) < 4) &&
+					tubeTop(a) != '' &&
+					(tubeTop(a) == tubeTop(b) || tubeTop(b) == '') &&
+					!isEmpty(a) &&
+					!full(b) &&
+					total(a, tubeTop(a)) <= total(b, 'e') &&
+					(total(b, 'e') != 4 ? true : total(a, 'e') + total(a, tubeTop(a)) != 4)
+				);
+			}
+			function isSolved() {
+				return tubes.reduce((a, b) => a && b.lastIndexOf(b[0]) == 3, true);
+			}
+			function full(b) {
+				return b[0] != 'e';
+			}
+			function tubeTop(t) {
+				return t.reduce((a, b) => a + (b == 'e' ? '' : b), '')[0] || '';
+			}
+			function pour(a, b) {
+				if (typeof a == typeof 0) (a = tubes[a]), (b = tubes[b]);
+				let i = a.lastIndexOf('e') + 1;
+				let t = a[i];
+				while (true) {
+					let j = b.lastIndexOf('e');
+					if (j == -1 || a[i] != t) {
+						return;
+					}
+					b[j] = t;
+					a[i] = 'e';
+					i++;
+				}
+			}
+			function serialize(a) {
+				return a.reduce((a, b) => a + b.join(''), '');
+			}
+			function deserialize(s) {
+				let res = new Array(count).fill(1).map((e) => ['e', 'e', 'e', 'e']);
+				s.split('').forEach((e, i, a) => {
+					res[Math.floor(i / 4)][i % 4] = e;
+				});
+				return res;
+			}
+			function isEmpty(a) {
+				return a[3] == 'e';
+			}
+			function empty(a) {
+				(a = a[0]), (b = a[1]);
+				if (typeof a == typeof 0) (a = tubes[a]), (b = tubes[b]);
+				if (tubeTop(b) == '') return 1;
+				return -1;
+			}
+			function getMoves() {
+				if (!loop) {
+					console.log('Before');
+					console.log('Steps: ', JSON.parse(JSON.stringify(steps)));
+					console.log('Step:  ', step);
+					console.log('Tubes: ', JSON.parse(JSON.stringify(tubes)));
+					console.log('Queue: ', JSON.parse(JSON.stringify(queue)));
+					console.log('Moves: ', JSON.parse(JSON.stringify(moves)));
+				}
+				if (steps.indexOf(serialize(tubes)) != -1) {
+					step--;
+					moves.pop();
+					tubes = deserialize(steps[step]);
+				}
+				if (step > 150) {
+					maxHit++;
+					// console.log("50 steps");
+					// queue.splice(step);
+					step--;
+					moves.pop();
+					tubes = deserialize(steps[step]);
+				}
+				if (queue[step]) {
+				} else {
+					queue[step] = [];
+					for (let i = 0; i < count; i++) {
+						for (let j = 0; j < count; j++) {
+							if (i != j && isValid(i, j)) {
+								queue[step].push([i, j]);
+							}
+						}
+					}
+					// queue[step].sort((a, b) => Math.random() - 0.5);
+					queue[step].sort((a, b) => isEmpty(tubes[a[1]]) - isEmpty(tubes[b[1]]));
+				}
+				if (queue[step].length == 0) {
+					step--;
+					moves.pop();
+					tubes = deserialize(steps[step]);
+				} else {
+					steps[step] = serialize(tubes);
+					queue.splice(step + 1);
+					move(queue[step].shift());
+				}
+				if (!loop) {
+					console.log('After');
+					console.log('Steps: ', JSON.parse(JSON.stringify(steps)));
+					console.log('Step:  ', step);
+					console.log('Tubes: ', JSON.parse(JSON.stringify(tubes)));
+					console.log('Queue: ', JSON.parse(JSON.stringify(queue)));
+					console.log('Moves: ', JSON.parse(JSON.stringify(moves)));
+					console.log('Move:  ', moves[moves.length - 1]);
+				}
+			}
+			function move(m) {
+				moves[step] = m;
+				step++;
+				pour(m[0], m[1]);
+			}
+			let h = 0;
+			function highlight(i) {
+				[...document.getElementsByClassName('first')].forEach((e) => e.classList.remove('first'));
+				[...document.getElementsByClassName('second')].forEach((e) => e.classList.remove('second'));
+				if (moves[h]) {
+					document.getElementById(moves[h][0]).classList.add('first');
+					document.getElementById(moves[h][1]).classList.add('second');
+				}
+			}
+			function tick() {
+				let frameTime = -start + (start = Date.now());
+				for (let i = 0; i < (loop ? 5000 : 0); i++) {
+					if (isSolved()) {
+						steps.push(serialize(tubes));
+						console.log(moves.join('\n'));
+						let t = deserialize(raw);
+						document.getElementById('result').innerHTML = t.reduce((a, b, i) => a + `<table id="${i}">${b.reduce((a, b) => a + `<tr><td class="${b}"></td></tr>`, '')}</table>`, '');
+						// document.getElementById('number').innerText = `step=${step}\nmaxHit=${maxHit}\nqueueLength=${queue.map(
+						// 	(a) => a.length
+						// )}\nframeTime=${frameTime}\ntotalChecked=${totalChecked}\ntotalTime=${totalChecked / (start - initialStart || 1)}`;
+						highlight(0);
+						// document.body.innerHTML = `<table><tr><th>Row</th><th>Vial</th><th>Row 2</th><th>Vial 2</th></tr>${moves.reduce(
+						// 	(a, b) => a + `<tr>${b.reduce((a, b) => a + `<td>${Math.floor(b / row) + 1}</td><td>${(b % row) + 1}</td>`, "")}</tr>`,
+						// 	""
+						// )}</table>`;
+						// document.body.firstChild.firstChild.firstChild.nextSibling.id = "highlighted";
+						loop = false;
+						return;
+					}
+					getMoves();
+					totalChecked++;
+				}
+				// document.getElementById('number').innerText = `step=${step}\nmaxHit=${maxHit}\nqueueLength=${queue.map(
+				// 	(a) => a.length
+				// )}\nframeTime=${frameTime}\ntotalChecked=${totalChecked}\ntotalTime=${(Date.now() - initialStart) / 1000}`;
+				if (loop) requestAnimationFrame(tick);
+			}
+			document.onkeypress = (e) => {
+				e.preventDefault();
+				if (e.key == ' ') {
+					if (!e.shiftKey) {
+						h += 1;
+					} else {
+						h -= 1;
+					}
+					h = ((h % steps.length) + steps.length) % steps.length;
+					let t = deserialize(steps[h]);
+					document.getElementById('result').innerHTML = t.reduce((a, b, i) => a + `<table id="${i}">${b.reduce((a, b) => a + `<tr><td class="${b}"></td></tr>`, '')}</table>`, '');
+					highlight(h);
+				}
+			};
+			tick();
+		</script>
+	</body>
+</html>

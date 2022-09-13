@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<body onload="load()">
+		<canvas id="canvas"></canvas>
+		<script>
+			var canvas,
+				ctx,
+				pnts = [],
+				poss,
+				worker;
+			function load() {
+				canvas = document.getElementById('canvas');
+				ctx = canvas.getContext('2d');
+				canvas.width = innerWidth;
+				canvas.height = innerHeight;
+				canvas.style.position = 'absolute';
+				canvas.style.top = 0;
+				canvas.style.left = 0;
+				var rand = Math.floor(Math.random() * 5 + 4);
+				rand = 7;
+				console.log(rand);
+				for (var r = 0; r < rand; r++) {
+					pnts[r] = [Math.random() * canvas.width, Math.random() * canvas.height];
+				}
+				for (var p = 0; p < pnts.length; p++) {
+					ctx.beginPath();
+					ctx.arc(pnts[p][0], pnts[p][1], 25, 0, Math.PI * 2);
+					ctx.stroke();
+					ctx.fill();
+				}
+				var arr = [];
+				for (var p = 0; p < rand; p++) {
+					arr[p] = p;
+				}
+				worker = new Worker('permute.js');
+				worker.postMessage(arr);
+				var curr = [0];
+				for (var c = 1; c < pnts.length; c++) {
+					var closest = undefined;
+					for (var p = 0; p < pnts.length; p++) {
+						if (curr.indexOf(p) == -1 && (closest == undefined || dist(pnts[p], pnts[curr[c - 1]]) < dist(pnts[closest], pnts[curr[c - 1]]))) {
+							closest = p;
+						}
+					}
+					curr[c] = closest;
+				}
+				console.log(getDist(pnts, curr));
+				ctx.beginPath();
+				ctx.moveTo(pnts[0][0], pnts[0][1]);
+				for (var c = 0; c < curr.length; c++) {
+					ctx.lineTo(pnts[curr[c]][0], pnts[curr[c]][1]);
+				}
+				ctx.strokeStyle = 'red';
+				ctx.lineWidth = 5;
+				ctx.stroke();
+				ctx.lineWidth = 2;
+				worker.onmessage = function (e) {
+					poss = e.data;
+					var closest = 0;
+					var d = getDist(pnts, poss[0]);
+					for (var p = 1; p < poss.length; p++) {
+						if (poss[p][0] == 0) {
+							var a = getDist(pnts, poss[p]);
+							if (a < d) {
+								d = a;
+								closest = p;
+							}
+						}
+					}
+					ctx.beginPath();
+					ctx.moveTo(pnts[0][0], pnts[0][1]);
+					for (var c = 0; c < poss[closest].length; c++) {
+						ctx.lineTo(pnts[poss[closest][c]][0], pnts[poss[closest][c]][1]);
+					}
+					ctx.strokeStyle = 'blue';
+					ctx.stroke();
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.font = '50px menlo';
+					ctx.lineWidth = 2;
+					for (var c = 0; c < poss[closest].length; c++) {
+						ctx.strokeStyle = 'hsl(' + (c / poss[closest].length) * 360 + ',100%,50%)';
+						ctx.fillStyle = 'hsl(' + (180 + (c / poss[closest].length) * 360) + ',100%,50%)';
+						ctx.fillText(c, pnts[poss[closest][c]][0], pnts[poss[closest][c]][1]);
+						ctx.strokeText(c, pnts[poss[closest][c]][0], pnts[poss[closest][c]][1]);
+					}
+					console.log(getDist(pnts, poss[closest]));
+				};
+			}
+			function permute(input, usedChars, permArr) {
+				var i, ch;
+				for (i = 0; i < input.length; i++) {
+					ch = input.splice(i, 1)[0];
+					usedChars.push(ch);
+					if (input.length == 0) {
+						permArr.push(usedChars.slice());
+					}
+					permute(input, usedChars, permArr);
+					input.splice(i, 0, ch);
+					usedChars.pop();
+				}
+				return permArr;
+			}
+			function dist(pnt1, pnt2) {
+				return Math.sqrt(Math.pow(pnt2[0] - pnt1[0], 2) + Math.pow(pnt2[1] - pnt1[1], 2));
+			}
+			function getDist(pnts, arr) {
+				var dis = 0;
+				for (var a = 0; a < arr.length - 1; a++) {
+					dis += dist(pnts[arr[a]], pnts[arr[a + 1]]);
+				}
+				return dis;
+			}
+		</script>
+	</body>
+</html>
