@@ -21,3 +21,5 @@ The embedded version does not accept your input, but the fullscreen version does
 It automatically inserts line breaks between words, but if an individual word is too long, it will overflow.
 
 If the message is too long to fit on the screen at once, it will cycle through pages.
+
+The pixel data gets stored in the browsers LocalStorage. If you'd like to reset it, or if it gets the data wrong (happens occasionally when the window rescales), you can type `localStorage.clear()` in the browser console and then reload the page.
